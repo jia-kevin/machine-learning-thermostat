@@ -1,9 +1,10 @@
 #include <Wire.h>
-#include "twoWire.h"
 /**
  * You need to use your own Instance of the TwoWire Object (instead of the standard `Wire`)
  * because they communicate over the wrong pins!
  */
+
+static TwoWire orbitWire(0);
 
 void WireInit()
 {

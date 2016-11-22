@@ -6,8 +6,6 @@
 #include <OrbitOledChar.h>
 #include <OrbitOledGrph.h>
 #include <string.h>
-#include "temperature.h"
-#include "twoWire.h"
 
 void setup() {
   Serial.begin(9600);
@@ -17,11 +15,7 @@ void setup() {
 }
 
 void loop() {
-  delay(5000);
-  OrbitOledClear();
-  OrbitOledSetCursor(1, 0);
-  char tempOutput[20] = "";
-  sprintf(tempOutput, "Temp is: %g C", TempRead());
-  OrbitOledPutString(tempOutput);
+  delay(500);
+  DisplayTemp();
 }
 
