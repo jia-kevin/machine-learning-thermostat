@@ -8,9 +8,49 @@
 #include <string.h>
 #include <stdbool.h>
 
-//static enum Pages
+
+bool IsMachineLearning = true;
+bool Celcius = true;
+
+static enum Pages {
+  MenuDisplay      = 0,
+  TempDisplay      = 1,
+  ModeSelect       = 2,
+  ModifySchedule   = 3,
+} CurrentPage = TempDisplay;
+
+static enum MenuOptions {
+  ToTemp                 = 0,
+  ToModeSelect           = 1,
+  ToModifySchedule       = 2,
+  MachineLearningToggle  = 3,
+  CelciusFarenheitToggle = 4,
+} CurrentMenuOption = ToTemp;
+
 
 void DisplayMenu() {
+  char outputLine[20] = "";
+  switch (CurrentMenuOption) {
+    case ToTemp:
+      sprintf(outputLine, " Display Temperature ");
+      break;
+    case ToModeSelect:
+      sprintf(outputLine, " Select Mode ");
+      break;
+    case ToModifySchedule:
+      sprintf(outputLine, " Change Schedule ");
+      break;
+    case MachineLearningToggle:
+      sprintf(outputLine, " Machine Learning: %s ", IsMachineLearning ? "ON" : "OFF");
+      break;
+    case CelciusFarenheitToggle:
+      sprintf(outputLine, " %s ", Celcius ? "Celcius" : "Farenheit");
+      break;
+  }
+
+  OrbitOledClear();
+  OrbitOledSetCursor(0, 0);
+  OrbitOledPutString(outputLine);
 }
 
 void DisplayTemp() {
