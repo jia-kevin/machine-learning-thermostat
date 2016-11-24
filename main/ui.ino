@@ -75,4 +75,7 @@ void SelectSchedule() {
 void SelectTemp() {
 }
 
+void DisplayTick() {
+}
+
 

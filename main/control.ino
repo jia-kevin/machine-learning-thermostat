@@ -2,9 +2,11 @@
 
 const uint32_t SwitchCount = 2;
 const uint32_t ButtonCount = 2;
-const uint32_t Switches[SwitchCount] = { PA_7, PA_6 };
-const uint32_t Buttons[ButtonCount] = { PD_2, PE_0 };
+const uint32_t Switches[SwitchCount] = { PA_6, PA_7 };
+const uint32_t Buttons[ButtonCount] = { PE_0, PD_2 };
 const uint32_t Potentiometer = PE_3;
+const uint32_t PotentiometerMax = 4100;
+
 
 struct ButtonState { 
   bool state;
@@ -12,8 +14,8 @@ struct ButtonState {
 };
 
 static struct InputState {
-  bool                switches[2];
-  struct ButtonState  buttons[2];
+  bool                switches[SwitchCount];
+  struct ButtonState  buttons[SwitchCount];
   float               potentiometer;
 } ControlInputState;
 
@@ -32,7 +34,7 @@ void ReadInput() {
   for (int i=0; i<ButtonCount; i++) { 
     bool previousState = ControlInputState.buttons[i].state;
     ControlInputState.buttons[i].state = digitalRead(Buttons[i]);
-    ControlInputState.buttons[i].isRising = (!previousState && ControlInputState.buttons[i].state);
+    ControlInputState.buttons[i].isRising = (previousState && !ControlInputState.buttons[i].state);
   }
   ControlInputState.potentiometer = analogRead(Potentiometer);
 }
@@ -54,6 +56,6 @@ bool GetSwitchControlLock() {
 }
 
 float GetPotentiometer() {
-  return ControlInputState.potentiometer;
+  return (1.0*ControlInputState.potentiometer)/PotentiometerMax;
 }
 
