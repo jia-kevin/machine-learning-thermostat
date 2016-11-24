@@ -7,12 +7,6 @@
 #include <OrbitOledGrph.h>
 #include <string.h>
 
-void WireInit();
-void TempInit();
-void ControlInit();
-
-void  DisplayTemp();
-void  ReadInput();
 void setup() {
   Serial.begin(9600);
   OrbitOledInit();
@@ -22,8 +16,8 @@ void setup() {
 }
 
 void loop() {
-  delay(5000);
-  DisplayTemp();
+  delay(100);
+  DisplayMenu();
   ReadInput();
 }
 

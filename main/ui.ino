@@ -8,9 +8,11 @@
 #include <string.h>
 #include <stdbool.h>
 
-
 bool IsMachineLearning = true;
 bool Celcius = true;
+const static int ScreenWidth = 16;
+const static int NumPages = 4;
+const static int MenuOptions = 5;
 
 static enum Pages {
   MenuDisplay      = 0,
@@ -29,42 +31,51 @@ static enum MenuOptions {
 
 
 void DisplayMenu() {
-  char outputLine[20] = "";
+  char outputLine1[ScreenWidth+1] = "";
+  char outputLine2[ScreenWidth+1] = "";
+  if (GetPotentiometer()<0 || GetPotentiometer() >= 1) Serial.println("ERROR");
+  CurrentMenuOption = static_cast<enum MenuOptions>((int)(GetPotentiometer()*MenuOptions));
   switch (CurrentMenuOption) {
     case ToTemp:
-      sprintf(outputLine, " Display Temperature ");
+      sprintf(outputLine1, "Display Temp");
       break;
     case ToModeSelect:
-      sprintf(outputLine, " Select Mode ");
+      sprintf(outputLine1, "Select Mode");
       break;
     case ToModifySchedule:
-      sprintf(outputLine, " Change Schedule ");
+      sprintf(outputLine1, "Change Schedule");
       break;
     case MachineLearningToggle:
-      sprintf(outputLine, " Machine Learning: %s ", IsMachineLearning ? "ON" : "OFF");
+      sprintf(outputLine1, "Machine Learning");
+      sprintf(outputLine2, "%s", IsMachineLearning ? "ON" : "OFF");
       break;
     case CelciusFarenheitToggle:
-      sprintf(outputLine, " %s ", Celcius ? "Celcius" : "Farenheit");
+      sprintf(outputLine1, "Degrees C/F");
+      sprintf(outputLine2, "%s", Celcius ? "Celcius" : "Farenheit");
       break;
   }
-
+  CenterLine(outputLine1);
+  CenterLine(outputLine2);
+  
   OrbitOledClear();
   OrbitOledSetCursor(0, 0);
-  OrbitOledPutString(outputLine);
+  OrbitOledPutString(outputLine1);
+  OrbitOledSetCursor(0, 1);
+  OrbitOledPutString(outputLine2);
 }
 
 void DisplayTemp() {
-  char outputLine[20] = "";
+  char outputLine[ScreenWidth+1] = "";
   OrbitOledClear();
   OrbitOledSetCursor(0, 0);
   
-  sprintf(outputLine, "Temp is: %g C", TempRead());
+  sprintf(outputLine, "Temp: %g C", TempRead());
   OrbitOledPutString(outputLine);
 
   if (TempIsSet()) {
     OrbitOledSetCursor(0, 3);
 
-    sprintf(outputLine, "Set temp is: %g C", GetDesiredTemp());
+    sprintf(outputLine, "Set temp: %g C", GetDesiredTemp());
     OrbitOledPutString(outputLine);
   }
 }
@@ -78,4 +89,20 @@ void SelectTemp() {
 void DisplayTick() {
 }
 
+char* CenterLine(char line[]) {
+  char result[ScreenWidth+1] = "";
+  char spaces[ScreenWidth+1] = "";
+  int i = 0;
+  for (i=0; i<(ScreenWidth-strlen(line))/2; i++) 
+    spaces[i] = ' ';
+  spaces[i] = '\0';
+
+  strcat(result, spaces);
+  strcat(result, line);
+  strcat(result, spaces);
+
+  strcpy(line, result);
+
+  return line;
+}
 

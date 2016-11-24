@@ -7,7 +7,6 @@ const uint32_t Buttons[ButtonCount] = { PE_0, PD_2 };
 const uint32_t Potentiometer = PE_3;
 const uint32_t PotentiometerMax = 4100;
 
-
 struct ButtonState { 
   bool state;
   bool isRising;
@@ -16,7 +15,7 @@ struct ButtonState {
 static struct InputState {
   bool                switches[SwitchCount];
   struct ButtonState  buttons[SwitchCount];
-  float               potentiometer;
+  int               potentiometer;
 } ControlInputState;
 
 void ControlInit() {
@@ -26,6 +25,7 @@ void ControlInit() {
     pinMode(Switches[i], INPUT);
   for (int i=0; i<ButtonCount; i++)
     pinMode(Buttons[i], INPUT);
+   pinMode(Potentiometer, INPUT);
 }
 
 void ReadInput() {
@@ -55,7 +55,8 @@ bool GetSwitchControlLock() {
   return ControlInputState.switches[1];
 }
 
-float GetPotentiometer() {
-  return (1.0*ControlInputState.potentiometer)/PotentiometerMax;
+//Returns Potentiometer input as a scaled number in [0,1), with 0 being far left
+double GetPotentiometer() {
+  return ((double)ControlInputState.potentiometer/(float)PotentiometerMax);
 }
 
