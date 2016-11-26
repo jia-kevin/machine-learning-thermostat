@@ -8,11 +8,12 @@
 #include <string.h>
 #include <stdbool.h>
 
-bool IsMachineLearning = true;
-bool Celcius = true;
 const static int ScreenWidth = 16;
-const static int NumPages = 4;
+const static int NumPages    = 4;
 const static int MenuOptions = 5;
+
+bool IsMachineLearning = true;
+bool Celcius           = true;
 
 static enum Pages {
   MenuDisplay      = 0,
@@ -38,20 +39,30 @@ void DisplayMenu() {
   switch (CurrentMenuOption) {
     case ToTemp:
       sprintf(outputLine1, "Display Temp");
+      if (GetButtonEnter())
+        CurrentPage = TempDisplay;
       break;
+      
     case ToModeSelect:
       sprintf(outputLine1, "Select Mode");
       break;
+      
     case ToModifySchedule:
       sprintf(outputLine1, "Change Schedule");
       break;
+      
     case MachineLearningToggle:
       sprintf(outputLine1, "Machine Learning");
       sprintf(outputLine2, "%s", IsMachineLearning ? "ON" : "OFF");
+      if (GetButtonEnter()) 
+        IsMachineLearning = !IsMachineLearning;
       break;
+      
     case CelciusFarenheitToggle:
       sprintf(outputLine1, "Degrees C/F");
       sprintf(outputLine2, "%s", Celcius ? "Celcius" : "Farenheit");
+      if (GetButtonEnter()) 
+        Celcius = !Celcius;
       break;
   }
   CenterLine(outputLine1);
@@ -73,11 +84,13 @@ void DisplayTemp() {
   OrbitOledPutString(outputLine);
 
   if (TempIsSet()) {
-    OrbitOledSetCursor(0, 3);
+    OrbitOledSetCursor(0, 1);
 
     sprintf(outputLine, "Set temp: %g C", GetDesiredTemp());
     OrbitOledPutString(outputLine);
   }
+  if (GetButtonCancel())
+    CurrentPage = MenuDisplay;
 }
 
 void SelectSchedule() {
@@ -87,12 +100,21 @@ void SelectTemp() {
 }
 
 void DisplayTick() {
+  switch(CurrentPage) {
+    case MenuDisplay:
+      DisplayMenu();
+      break;
+    case TempDisplay:
+      DisplayTemp();
+      break;
+  }
 }
 
 char* CenterLine(char line[]) {
   char result[ScreenWidth+1] = "";
   char spaces[ScreenWidth+1] = "";
   int i = 0;
+  
   for (i=0; i<(ScreenWidth-strlen(line))/2; i++) 
     spaces[i] = ' ';
   spaces[i] = '\0';

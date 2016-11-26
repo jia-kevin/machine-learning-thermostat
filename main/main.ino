@@ -17,7 +17,7 @@ void setup() {
 
 void loop() {
   delay(100);
-  DisplayMenu();
   ReadInput();
+  DisplayTick();
 }
 

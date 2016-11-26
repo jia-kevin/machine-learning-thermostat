@@ -1,8 +1,9 @@
 #include <stdbool.h>
 #include <string.h>
 
-const static int MinSetTemp = 15;
-const static int MaxSetTemp = 40;
+const static int MinSetTemp        = 15;
+const static int MaxSetTemp        = 40;
+const static int NoSetTemp         = MinSetTemp - 1;
 const static int TemperatureSensor = TEMPADDR;
 
 static uint8_t DesiredTemp;
