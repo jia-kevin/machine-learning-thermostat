@@ -13,6 +13,7 @@ void setup() {
   WireInit();
   TempInit();
   ControlInit();
+  UiInit();
 }
 
 void loop() {

@@ -12,14 +12,18 @@ const static int ScreenWidth = 16;
 const static int NumPages    = 4;
 const static int MenuOptions = 5;
 
+static float CurrSetTemp;
+static float TempSetTemp;
+
 bool IsMachineLearning = true;
 bool Celcius           = true;
 
 static enum Pages {
-  MenuDisplay      = 0,
-  TempDisplay      = 1,
-  ModeSelect       = 2,
-  ModifySchedule   = 3,
+  MenuDisplay       = 0,
+  TempDisplay       = 1,
+  TempSelectDisplay = 2,
+  ModeSelect        = 3,
+  ModifySchedule    = 4,
 } CurrentPage = TempDisplay;
 
 static enum MenuOptions {
@@ -30,6 +34,14 @@ static enum MenuOptions {
   CelciusFarenheitToggle = 4,
 } CurrentMenuOption = ToTemp;
 
+static enum Modes {
+  
+}
+
+void UiInit() {
+  CurrSetTemp = NoSetTemp();
+  TempSetTemp = NoSetTemp();
+}
 
 void DisplayMenu() {
   char outputLine1[ScreenWidth+1] = "";
@@ -97,6 +109,35 @@ void SelectSchedule() {
 }
 
 void SelectTemp() {
+  char outputLine1[ScreenWidth+1] = "";
+  char outputLine2[ScreenWidth+1] = "";
+
+  if (CurrentSetTemp == GetNoSetTemp())
+    sprintf(outputLine1, "Temp not set!");
+  else
+    sprintf(outputLine1, "Set temp: %g", CurrentSetTemp);
+  CenterLine(outputLine1);
+
+  if (GetPotentiometer() == 0) 
+    sprintf(outputLine2, "Desired: NONE");
+  else
+    sprintf(outputLine2, "Desired: %g", DesiredTempFromPot());
+  CenterLine(outputLine2);
+  
+  OrbitOledClear();
+  OrbitOledSetCursor(0, 0);
+  OrbitOledPutString(OutputLine1);
+  OrbitOledSetCursor(0, 2);
+  OrbitOledPutString(OutputLine2);
+
+  if (GetButtonEnter()){
+    if (GetPotentiometer() == 0)
+      CurrentSetTemp = GetNoSetTemp();
+    else
+      CurrentSetTemp = DesiredTempFromPot();
+  } 
+  else
+    CurrentPage = MenuDisplay;
 }
 
 void DisplayTick() {
@@ -106,6 +147,9 @@ void DisplayTick() {
       break;
     case TempDisplay:
       DisplayTemp();
+      break;
+    case TempSelectDisplay:
+      SelectTemp();
       break;
   }
 }
@@ -126,5 +170,9 @@ char* CenterLine(char line[]) {
   strcpy(line, result);
 
   return line;
+}
+
+float DesiredTempFromPot() {
+  return (((int)(GetPotentiometer * (GetMaxTemp()-GetMinTemp())*2))/2.0 + GetMinTemp());
 }
 

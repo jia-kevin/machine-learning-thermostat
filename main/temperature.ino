@@ -6,8 +6,7 @@ const static int MaxSetTemp        = 40;
 const static int NoSetTemp         = MinSetTemp - 1;
 const static int TemperatureSensor = TEMPADDR;
 
-static uint8_t DesiredTemp;
-static bool    ControlTemp;
+static float   DesiredTemp;
 static bool    HeatingOn;
 
 void TempInit() {
@@ -35,12 +34,15 @@ float TempRead() {
 bool TempIsSet() {
   if (DesiredTemp < MinSetTemp || DesiredTemp > MaxSetTemp) 
     return false;
-
-  return ControlTemp;
+  return true;
 }
 
 int GetDesiredTemp() {
   return DesiredTemp;
+}
+
+void SetDesiredTemp(float desired) {
+  
 }
 
 int GetMinTemp() {
@@ -49,6 +51,10 @@ int GetMinTemp() {
 
 int GetMaxTemp() {
   return MaxSetTemp;
+}
+
+int GetNoSetTemp() {
+  return NoSetTemp;
 }
 
 void ControlHVAC() {
