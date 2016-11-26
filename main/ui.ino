@@ -8,9 +8,9 @@
 #include <string.h>
 #include <stdbool.h>
 
-const static int ScreenWidth = 16;
-const static int NumPages    = 4;
-const static int MenuOptions = 5;
+//static const int ScreenWidth = 16;
+static const int NumPages    = 5;
+static const int MenuOptions = 6;
 
 static float CurrSetTemp;
 static float TempSetTemp;
@@ -21,32 +21,37 @@ bool Celcius           = true;
 static enum Pages {
   MenuDisplay       = 0,
   TempDisplay       = 1,
-  TempSelectDisplay = 2,
-  ModeSelect        = 3,
+  ModeSelect        = 2,
+  TempSelectDisplay = 3,
   ModifySchedule    = 4,
 } CurrentPage = TempDisplay;
 
 static enum MenuOptions {
   ToTemp                 = 0,
   ToModeSelect           = 1,
-  ToModifySchedule       = 2,
-  MachineLearningToggle  = 3,
-  CelciusFarenheitToggle = 4,
+  ToTempSelect           = 2,
+  ToModifySchedule       = 3,
+  MachineLearningToggle  = 4,
+  CelciusFarenheitToggle = 5,
 } CurrentMenuOption = ToTemp;
 
 static enum Modes {
-  
-}
+  None                   = 0,
+  Schedule               = 1,
+  Vacation               = 2,
+  PowerSaver             = 3,
+  MachineLearning        = 4,
+} CurrentMode = None;
 
 void UiInit() {
-  CurrSetTemp = NoSetTemp();
-  TempSetTemp = NoSetTemp();
+  CurrSetTemp = GetNoSetTemp();
+  TempSetTemp = GetNoSetTemp();
 }
 
 void DisplayMenu() {
   char outputLine1[ScreenWidth+1] = "";
   char outputLine2[ScreenWidth+1] = "";
-  if (GetPotentiometer()<0 || GetPotentiometer() >= 1) Serial.println("ERROR");
+  
   CurrentMenuOption = static_cast<enum MenuOptions>((int)(GetPotentiometer()*MenuOptions));
   switch (CurrentMenuOption) {
     case ToTemp:
@@ -57,6 +62,12 @@ void DisplayMenu() {
       
     case ToModeSelect:
       sprintf(outputLine1, "Select Mode");
+      break;
+
+    case ToTempSelect:
+      sprintf(outputLine1, "Select Temp");
+      if (GetButtonEnter()) 
+        CurrentPage = TempSelectDisplay;
       break;
       
     case ToModifySchedule:
@@ -112,13 +123,13 @@ void SelectTemp() {
   char outputLine1[ScreenWidth+1] = "";
   char outputLine2[ScreenWidth+1] = "";
 
-  if (CurrentSetTemp == GetNoSetTemp())
+  if (CurrSetTemp == GetNoSetTemp())
     sprintf(outputLine1, "Temp not set!");
   else
-    sprintf(outputLine1, "Set temp: %g", CurrentSetTemp);
+    sprintf(outputLine1, "Set temp: %g", CurrSetTemp);
   CenterLine(outputLine1);
 
-  if (GetPotentiometer() == 0) 
+  if (GetPotentiometer() < 0.01) 
     sprintf(outputLine2, "Desired: NONE");
   else
     sprintf(outputLine2, "Desired: %g", DesiredTempFromPot());
@@ -126,17 +137,22 @@ void SelectTemp() {
   
   OrbitOledClear();
   OrbitOledSetCursor(0, 0);
-  OrbitOledPutString(OutputLine1);
+  OrbitOledPutString(outputLine1);
   OrbitOledSetCursor(0, 2);
-  OrbitOledPutString(OutputLine2);
+  OrbitOledPutString(outputLine2);
 
   if (GetButtonEnter()){
-    if (GetPotentiometer() == 0)
-      CurrentSetTemp = GetNoSetTemp();
+    if (GetPotentiometer() < 0.01)
+      CurrSetTemp = GetNoSetTemp();
     else
-      CurrentSetTemp = DesiredTempFromPot();
+      CurrSetTemp = DesiredTempFromPot();
+
+    SetDesiredTemp(CurrSetTemp);
+    
+    if (CurrentMode != None && CurrentMode != MachineLearning)
+      CurrentMode = None;
   } 
-  else
+  else if (GetButtonCancel())
     CurrentPage = MenuDisplay;
 }
 
@@ -153,26 +169,3 @@ void DisplayTick() {
       break;
   }
 }
-
-char* CenterLine(char line[]) {
-  char result[ScreenWidth+1] = "";
-  char spaces[ScreenWidth+1] = "";
-  int i = 0;
-  
-  for (i=0; i<(ScreenWidth-strlen(line))/2; i++) 
-    spaces[i] = ' ';
-  spaces[i] = '\0';
-
-  strcat(result, spaces);
-  strcat(result, line);
-  strcat(result, spaces);
-
-  strcpy(line, result);
-
-  return line;
-}
-
-float DesiredTempFromPot() {
-  return (((int)(GetPotentiometer * (GetMaxTemp()-GetMinTemp())*2))/2.0 + GetMinTemp());
-}
-

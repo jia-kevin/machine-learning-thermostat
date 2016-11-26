@@ -1,11 +1,11 @@
 #include <stdbool.h>
 
-const uint32_t SwitchCount = 2;
-const uint32_t ButtonCount = 2;
+const uint32_t SwitchCount           = 2;
+const uint32_t ButtonCount           = 2;
 const uint32_t Switches[SwitchCount] = { PA_6, PA_7 };
-const uint32_t Buttons[ButtonCount] = { PE_0, PD_2 };
-const uint32_t Potentiometer = PE_3;
-const uint32_t PotentiometerMax = 4100;
+const uint32_t Buttons[ButtonCount]  = { PE_0, PD_2 };
+const uint32_t Potentiometer         = PE_3;
+const uint32_t PotentiometerMax      = 4100;
 
 struct ButtonState { 
   bool state;

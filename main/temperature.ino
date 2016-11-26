@@ -12,7 +12,6 @@ static bool    HeatingOn;
 void TempInit() {
   WireWriteRegister(TemperatureSensor, 0x20, 1);
   HeatingOn = false;
-  ControlTemp = false;
 }
 
 float TempRead() {
@@ -42,7 +41,7 @@ int GetDesiredTemp() {
 }
 
 void SetDesiredTemp(float desired) {
-  
+  DesiredTemp = desired;
 }
 
 int GetMinTemp() {
