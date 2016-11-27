@@ -8,9 +8,9 @@
 #include <string.h>
 #include <stdbool.h>
 
-//static const int ScreenWidth = 16;
-static const int NumPages    = 5;
-static const int MenuOptions = 6;
+static const int NumPages       = 5;
+static const int NumMenuOptions = 6;
+static const int NumModes       = 5;
 
 static float CurrSetTemp;
 static float TempSetTemp;
@@ -43,6 +43,14 @@ static enum Modes {
   MachineLearning        = 4,
 } CurrentMode = None;
 
+static const char ModeNames[NumModes][ScreenWidth+1]  = {
+  "None",
+  "Schedule",
+  "Vacation",
+  "PowerSaver",
+  "Mach. L"
+};
+
 void UiInit() {
   CurrSetTemp = GetNoSetTemp();
   TempSetTemp = GetNoSetTemp();
@@ -52,7 +60,7 @@ void DisplayMenu() {
   char outputLine1[ScreenWidth+1] = "";
   char outputLine2[ScreenWidth+1] = "";
   
-  CurrentMenuOption = static_cast<enum MenuOptions>((int)(GetPotentiometer()*MenuOptions));
+  CurrentMenuOption = static_cast<enum MenuOptions>((int)(GetPotentiometer()*NumMenuOptions));
   switch (CurrentMenuOption) {
     case ToTemp:
       sprintf(outputLine1, "Display Temp");
@@ -62,6 +70,8 @@ void DisplayMenu() {
       
     case ToModeSelect:
       sprintf(outputLine1, "Select Mode");
+      if (GetButtonEnter()) 
+        CurrentPage = ModeSelect;
       break;
 
     case ToTempSelect:
@@ -108,10 +118,30 @@ void DisplayTemp() {
 
   if (TempIsSet()) {
     OrbitOledSetCursor(0, 1);
-
     sprintf(outputLine, "Set temp: %g C", GetDesiredTemp());
     OrbitOledPutString(outputLine);
   }
+  if (GetButtonCancel())
+    CurrentPage = MenuDisplay;
+}
+
+void SelectMode() {
+  char outputLine1[ScreenWidth+1] = "";
+  char outputLine2[ScreenWidth+1] = "";
+
+  sprintf(outputLine1, "Curr: %s", ModeNames[CurrentMode]);
+  sprintf(outputLine2, "%s", ModeNames[(int)(GetPotentiometer()*NumModes)]);
+
+  CenterLine(outputLine2);
+  
+  OrbitOledClear();
+  OrbitOledSetCursor(0, 0);
+  OrbitOledPutString(outputLine1);
+  OrbitOledSetCursor(0, 1);
+  OrbitOledPutString(outputLine2);
+
+  if (GetButtonEnter()) 
+    CurrentMode = static_cast<enum Modes>((int)(GetPotentiometer()*NumModes));
   if (GetButtonCancel())
     CurrentPage = MenuDisplay;
 }
@@ -149,8 +179,10 @@ void SelectTemp() {
 
     SetDesiredTemp(CurrSetTemp);
     
-    if (CurrentMode != None && CurrentMode != MachineLearning)
-      CurrentMode = None;
+    if (CurrentMode != None && CurrentMode != MachineLearning) {
+      if (IsMachineLearning) CurrentMode = MachineLearning;
+      else CurrentMode = None;
+    }
   } 
   else if (GetButtonCancel())
     CurrentPage = MenuDisplay;
@@ -163,6 +195,9 @@ void DisplayTick() {
       break;
     case TempDisplay:
       DisplayTemp();
+      break;
+    case ModeSelect:
+      SelectMode();
       break;
     case TempSelectDisplay:
       SelectTemp();
