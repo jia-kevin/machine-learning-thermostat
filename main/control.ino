@@ -40,11 +40,11 @@ void ReadInput() {
 }
 
 bool GetButtonEnter() {
-  return ControlInputState.buttons[0].isRising;
+  return (ControlInputState.buttons[0].isRising && ControlInputState.switches[1]);
 }
 
 bool GetButtonCancel() {
-  return ControlInputState.buttons[1].isRising;
+  return (ControlInputState.buttons[1].isRising && ControlInputState.switches[1]);
 }
 
 bool GetSwitchTempLock() {

@@ -36,7 +36,7 @@ bool TempIsSet() {
   return true;
 }
 
-int GetDesiredTemp() {
+float GetDesiredTemp() {
   return DesiredTemp;
 }
 
