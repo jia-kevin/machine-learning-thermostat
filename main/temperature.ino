@@ -17,21 +17,21 @@ void TempInit() {
 float TempRead() {
   size_t const DataLength = 6;
   uint32_t data[DataLength] = { 0 };
-  
+
   WireWriteByte(TemperatureSensor, 0);
   WireRequestArray(TemperatureSensor, data, DataLength);
 
   float temp = data[0];
-  if (data[0] > 128) 
+  if (data[0] > 128)
     temp = temp - 256;
-  if (data[1] == 128) 
+  if (data[1] == 128)
     temp += 0.5;
-  
+
   return temp;
 }
 
 bool TempIsSet() {
-  if (DesiredTemp < MinSetTemp || DesiredTemp > MaxSetTemp) 
+  if (DesiredTemp < MinSetTemp || DesiredTemp > MaxSetTemp)
     return false;
   return true;
 }
@@ -57,7 +57,7 @@ int GetNoSetTemp() {
 }
 
 void ControlHVAC() {
-  
+
 }
 
 
