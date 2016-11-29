@@ -4,20 +4,6 @@ static unsigned long min;
 static unsigned long time;
 static unsigned long change;
 
-
-int testCounter;
-/*void setup() {
-  Serial.begin(9600);
-  SetTime(3, 7, 51);
-  Serial.println(day);
-  Serial.println(hour);
-  Serial.println(min);
-  Serial.println(time);
-
-  change = 0;
-  
-}*/
-
 void TimeInit() {
   change = 0;
 }
@@ -42,30 +28,4 @@ void GetTime() {
   day = day % 7;
   SetTime(day, hour, min);
 }
-
-/*void loop() {
-  // put your main code here, to run repeatedly: 
-  testCounter++;
-  //Serial.println(testCounter);
-  if(testCounter==10000000)
-  {
-    GetTime();
-  Serial.println(day);
-  Serial.println(hour);
-  Serial.println(min);
-  Serial.println(time);
-  Serial.println(change);
-
-  }
-  if(testCounter==12000000) {
-    unsigned long pass = millis();
-    Serial.println(pass);
-    GetTime();
-  Serial.println(day);
-  Serial.println(hour);
-  Serial.println(min);
-  Serial.println(time);
-  Serial.println(change);
-  }
-}*/
 

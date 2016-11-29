@@ -6,6 +6,7 @@ const uint32_t Switches[SwitchCount] = { PA_6, PA_7 };
 const uint32_t Buttons[ButtonCount]  = { PE_0, PD_2 };
 const uint32_t Potentiometer         = PE_3;
 const uint32_t PotentiometerMax      = 4100;
+const uint32_t Relay                 = PB_2;
 
 struct ButtonState { 
   bool state;
@@ -26,6 +27,7 @@ void ControlInit() {
   for (int i=0; i<ButtonCount; i++)
     pinMode(Buttons[i], INPUT);
    pinMode(Potentiometer, INPUT);
+   pinMode(Relay, OUTPUT);
 }
 
 void ReadInput() {
@@ -58,5 +60,12 @@ bool GetSwitchControlLock() {
 //Returns Potentiometer input as a scaled number in [0,1), with 0 being far left
 double GetPotentiometer() {
   return ((double)ControlInputState.potentiometer/(float)PotentiometerMax);
+}
+
+void setHeater(bool on) {
+  if (on)
+    digitalWrite(Relay, HIGH);
+  else
+    digitalWrite(Relay, LOW);
 }
 
