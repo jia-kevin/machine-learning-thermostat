@@ -43,14 +43,6 @@ static enum Modes {
   MachineLearning        = 4,
 } CurrentMode = None;
 
-static const char ModeNames[NumModes][ScreenWidth+1]  = {
-  "None",
-  "Schedule",
-  "Vacation",
-  "PowerSaver",
-  "Mach. L"
-};
-
 void UiInit() {
   CurrSetTemp = GetNoSetTemp();
   TempSetTemp = GetNoSetTemp();
@@ -109,18 +101,20 @@ void DisplayMenu() {
 }
 
 void DisplayTemp() {
-  char outputLine[ScreenWidth+1] = "";
+  char outputLine1[ScreenWidth+1] = "";
+  char outputLine2[ScreenWidth+1] = "";
+  char outputLine3[ScreenWidth+1] = "";
+  char outputLine4[ScreenWidth+1] = "";
+  
+  sprintf(outputLine1, "Temp: %g C", TempRead());
+
+  if (TempIsSet())
+    sprintf(outputLine2, "Set temp: %g C", GetDesiredTemp());
+  if (GetMode())
+    sprintf(outputLine3, "%s", GetModeName(GetMode()));
   OrbitOledClear();
   OrbitOledSetCursor(0, 0);
   
-  sprintf(outputLine, "Temp: %g C", TempRead());
-  OrbitOledPutString(outputLine);
-
-  if (TempIsSet()) {
-    OrbitOledSetCursor(0, 1);
-    sprintf(outputLine, "Set temp: %g C", GetDesiredTemp());
-    OrbitOledPutString(outputLine);
-  }
   if (GetButtonCancel())
     CurrentPage = MenuDisplay;
 }
@@ -204,3 +198,8 @@ void DisplayTick() {
       break;
   }
 }
+
+int GetMode() {
+  return static_cast<int>(CurrentMode);
+}
+

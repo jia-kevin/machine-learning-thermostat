@@ -1,9 +1,12 @@
 #include <stdbool.h>
 #include <string.h>
+#include "datetime.h"
 
-const static int MinSetTemp        = 15;
-const static int MaxSetTemp        = 40;
-const static int NoSetTemp         = MinSetTemp - 1;
+struct DateTime;
+
+const        int MinSetTemp        = 15;
+const        int MaxSetTemp        = 35;
+const        int NoSetTemp         = MinSetTemp - 1;
 const static int TemperatureSensor = TEMPADDR;
 
 static float   DesiredTemp;
@@ -57,7 +60,27 @@ int GetNoSetTemp() {
 }
 
 void ControlHVAC() {
-
+  if (TempRead() < GetDesiredTemp()) 
+    setHeater(true);
+  else
+    setHeater(false);
 }
 
+void ControlTemp() {
+  if (GetMode()) {
+    float currentSchedule[ScheduleArrayElements];
+    struct DateTime current = GetTime();
+    
+    EepromReadSchedule(currentSchedule, GetMode());
+
+    int index = 0;
+    index += IntervalsInHour*HoursInDay*current.day;
+    index += IntervalsInHour*current.hour;
+    index += current.minute/MinutesInInterval;
+
+    SetDesiredTemp(currentSchedule[index]);
+  }
+
+  ControlHVAC();
+}
 

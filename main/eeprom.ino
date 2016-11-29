@@ -11,11 +11,13 @@
  */
 #define EPS 1e-9
 
-const static int Eeprom                 = EEPROMADDR;
-const static int DaysInWeek             = 7;
-const static int HoursInDay             = 24;
-const static int IntervalsInHour        = 4;
-const static int ScheduleArrayElements  = DaysInWeek * HoursInDay * IntervalsInHour;
+const        int Eeprom                 = EEPROMADDR;
+const        int DaysInWeek             = 7;
+const        int HoursInDay             = 24;
+const        int IntervalsInHour        = 4;
+const        int MinutesInInterval      = 15;
+const        int ScheduleArrayElements  = DaysInWeek * HoursInDay * IntervalsInHour;
+const static int ScheduleArraySize      = 2 * ScheduleArrayElements;
 
 void EepromInit() { 
   float schedule[ScheduleArrayElements] = { 0 };
@@ -80,7 +82,7 @@ void EepromWriteSchedule(float *writeFrom, int scheduleNum) {
     int leastSignificantBit   = (memAddress+2*i) & 0xFF;
     uint8_t data              = 0;
     
-    data = (int) (WriteFrom[i] + EPS);
+    data = (int) (writeFrom[i] + EPS);
     WireWriteByteToRegister(Eeprom, mostSignificantBit, leastSignificantBit, data);
 
     mostSignificantBit        = (memAddress+2*i+1) >> 8;
@@ -93,4 +95,3 @@ void EepromWriteSchedule(float *writeFrom, int scheduleNum) {
     WireWriteByteToRegister(Eeprom, mostSignificantBit, leastSignificantBit, data);
   }
 }
-

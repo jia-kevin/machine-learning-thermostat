@@ -23,5 +23,5 @@ void loop() {
   delay(100);
   ReadInput();
   DisplayTick();
+  ControlTemp();
 }
-

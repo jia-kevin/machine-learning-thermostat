@@ -4,7 +4,8 @@
 
 #define EPS 1e-9
 
-static const int  ScreenWidth      = 16;
+const int         ScreenWidth      = 16;
+
 static const char DaysofWeek[7][4] = {
   "Mon",
   "Tue", 
@@ -13,6 +14,14 @@ static const char DaysofWeek[7][4] = {
   "Fri",
   "Sat",
   "Sun"
+};
+
+static const char ModeNames[NumModes][ScreenWidth+1]  = {
+  "None",
+  "Schedule",
+  "Vacation",
+  "PowerSaver",
+  "Mach. L"
 };
 
 char* CenterLine(char line[]) {
@@ -27,6 +36,23 @@ char* CenterLine(char line[]) {
   strcat(result, spaces);
   strcat(result, line);
   strcat(result, spaces);
+
+  strcpy(line, result);
+
+  return line;
+}
+
+char* LeftJustify(char line[]) {
+  char result[ScreenWidth+1] = "";
+  char spaces[ScreenWidth+1] = "";
+  int i = 0;
+  
+  for (i=0; i<(ScreenWidth-strlen(line)); i++) 
+    spaces[i] = ' ';
+  spaces[i] = '\0';
+
+  strcat(result, spaces);
+  strcat(result, line);
 
   strcpy(line, result);
 
@@ -48,3 +74,8 @@ float CtoF(float C) {
     return GetNoSetTemp();
   return (9 * C / 5 + 32);
 }
+
+char* GetModeName(int i) {
+  return ModeNames[i];
+}
+
