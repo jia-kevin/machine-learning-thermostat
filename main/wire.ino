@@ -23,6 +23,13 @@ void WireWriteRegister(int address, uint8_t reg, uint8_t value) {
   orbitWire.endTransmission();
 }
 
+void WireWriteByteToRegister(int address, uint8_t reg, uint8_t reg2, uint8_t value) {
+  orbitWire.beginTransmission(address);
+  orbitWire.write(reg);
+  orbitWire.write(reg2);
+  orbitWire.write(value);
+  orbitWire.endTransmission();
+}
 /**
  * WireRequestArray(int address, uint32_t* buffer, uint8_t amount)
  * 
