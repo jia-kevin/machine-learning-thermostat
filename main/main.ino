@@ -10,10 +10,13 @@
 void setup() {
   Serial.begin(9600);
   OrbitOledInit();
+  
   WireInit();
   TempInit();
   ControlInit();
   UiInit();
+  TimeInit();
+  EepromInit();
 }
 
 void loop() {

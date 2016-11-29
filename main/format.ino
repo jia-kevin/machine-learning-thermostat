@@ -4,7 +4,16 @@
 
 #define EPS 1e-9
 
-static const int ScreenWidth = 16;
+static const int  ScreenWidth      = 16;
+static const char DaysofWeek[7][4] = {
+  "Mon",
+  "Tue", 
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat",
+  "Sun"
+};
 
 char* CenterLine(char line[]) {
   char result[ScreenWidth+1] = "";
