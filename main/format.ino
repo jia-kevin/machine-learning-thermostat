@@ -6,7 +6,7 @@
 
 #define EPS 1e-9
 
-static const char DaysofWeek[7][4] = {
+static char DaysofWeek[7][4] = {
   "Mon",
   "Tue", 
   "Wed",
@@ -16,7 +16,7 @@ static const char DaysofWeek[7][4] = {
   "Sun"
 };
 
-static const char ModeNames[NumModes][ScreenWidth+1]  = {
+static char ModeNames[NumModes][ScreenWidth+1]  = {
   "None",
   "Schedule",
   "Vacation",
@@ -94,5 +94,9 @@ char* TimeToString(char* input) {
 
 char* GetDayofWeek(int i) {
   return DaysofWeek[i];
+}
+
+bool IsFlashing() {
+  return (millis()/500)%2;
 }
 

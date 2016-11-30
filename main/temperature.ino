@@ -72,7 +72,7 @@ void ControlHVAC() {
 }
 
 void ControlTemp() {
-  if (GetMode()) {
+  if (GetMode() && GetSwitchTempLock()) {
     struct DateTime current = GetTime();
 
     int index = 0;

@@ -216,7 +216,7 @@ void SelectTemp() {
 void DisplaySetTime() {
   const int numDays    = 7;
   const int numHours   = 12;
-  const int numMinutes = 60;
+  const int numMin     = 60;
   const int numAMPM    = 2;
   
   static int currentSelect = 0; //0-3 option for whether selecting: Day, Hour, Min, AM/PM
@@ -229,17 +229,69 @@ void DisplaySetTime() {
   char outputLine3[ScreenWidth+1] = "";
 
   sprintf(outputLine1, "Select Time:");
-
+  
+  char printDay [4]; 
+  char printHour[3];
+  char printMin [3];
+  char printAMPM[3];
+  
+  sprintf(printDay, "%s", GetDayofWeek(selectDay));
+  sprintf(printHour, "%d", selectHour == 0 ? 12 : selectHour);
+  sprintf(printMin, "%02d", selectMin);
+  sprintf(printAMPM, "%s", (selectAMPM) ? "AM" : "PM");
+  
   switch (currentSelect) {
     case 0:
-      selectDay = (int)(GetPotentiometer()*NumModes);
-      sprintf(outputLine3, "%s %d:%02d %s", GetDayofWeek(selectDay), 
-                                 selectHour == 0 ? 12 : selectHour, 
-                                 selectMin,
-                                 (selectAMPM) ? "AM" : "PM");
-                        
+      selectDay = (int)(GetPotentiometer()*numDays);
+      sprintf(printDay, "%s", GetDayofWeek(selectDay));
+      if (IsFlashing()) 
+        sprintf(printDay, "   ");
+      break;
+    case 1:
+      selectHour = (int)(GetPotentiometer()*numHours);
+      sprintf(printHour, "%d", selectHour == 0 ? 12 : selectHour);
+      if (IsFlashing()) {
+        if (selectHour >=10 || selectHour == 0)
+          sprintf(printHour, "  ");
+        else
+          sprintf(printHour, " ");
+      }
+      break;
+    case 2:
+      selectMin = (int)(GetPotentiometer()*numMin);
+      sprintf(printMin, "%02d", selectMin);
+      if (IsFlashing()) {
+        sprintf(printMin, "  ");
+      }
+      break;
+    case 3:
+      selectAMPM = (int)(GetPotentiometer()*numAMPM);
+      sprintf(printAMPM, "%s", (selectAMPM) ? "AM" : "PM");
+      if (IsFlashing()) {
+        sprintf(printAMPM, "  ");
+      }
+      break;            
   }
-  
+  sprintf(outputLine3, "%s %s:%s %s", printDay, printHour, printMin, printAMPM);
+
+  if (GetButtonEnter()) {
+    currentSelect = (currentSelect+1)%4;
+    if (currentSelect == 0) {
+      SetTime(selectDay, selectHour+12*selectAMPM, selectMin);
+      CurrentPage = MenuDisplay;
+    }
+  }
+  else if (GetButtonCancel()) {
+    if (currentSelect == 0) {
+      selectDay  = 0;
+      selectHour = 0;
+      selectMin  = 0;
+      selectAMPM = 0;
+      CurrentPage = MenuDisplay;
+    }
+    else
+      currentSelect = (currentSelect-1+4)%4;
+  }
 }
 
 void DisplayTick() {
