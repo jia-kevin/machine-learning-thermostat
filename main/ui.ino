@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "globalconstants.h"
+#include "datetime.h"
 
 static float CurrSetTemp;
 static float TempSetTemp;
@@ -21,6 +22,7 @@ static enum Pages {
   ModeSelect        = 2,
   TempSelectDisplay = 3,
   ModifySchedule    = 4,
+  SetTimeDisplay    = 5,          
 } CurrentPage = MenuDisplay;
 
 static enum MenuOptions {
@@ -28,8 +30,9 @@ static enum MenuOptions {
   ToModeSelect           = 1,
   ToTempSelect           = 2,
   ToModifySchedule       = 3,
-  MachineLearningToggle  = 4,
-  CelciusFarenheitToggle = 5,
+  ToSetTimeDisplay       = 4,
+  MachineLearningToggle  = 5,
+  CelciusFarenheitToggle = 6,
 } CurrentMenuOption = ToTemp;
 
 static enum Modes {
@@ -72,7 +75,13 @@ void DisplayMenu() {
     case ToModifySchedule:
       sprintf(outputLine1, "Change Schedule");
       break;
-      
+
+    case ToSetTimeDisplay:
+      sprintf(outputLine1, "Set Time");
+      if (GetButtonEnter())
+        CurrentPage = SetTimeDisplay;
+      break;
+    
     case MachineLearningToggle:
       sprintf(outputLine1, "Machine Learning");
       sprintf(outputLine2, "%s", IsMachineLearning ? "ON" : "OFF");
@@ -104,10 +113,18 @@ void DisplayTemp() {
   char outputLine4[ScreenWidth+1] = "";
   char timeString [ScreenWidth+1] = "";
   Serial.println("1");
-  sprintf(outputLine1, "Temp: %g C", TempRead());
-
-  if (TempIsSet())
-    sprintf(outputLine2, "Set temp: %g C", GetDesiredTemp());
+  if (Celcius)
+    sprintf(outputLine1, "Temp: %g C", TempRead());
+  else
+    sprintf(outputLine1, "Temp: %g F", CtoF(TempRead()));
+    
+  if (TempIsSet()) {
+    if (Celcius)
+      sprintf(outputLine2, "Set temp: %g C", GetDesiredTemp());
+    else
+      sprintf(outputLine2, "Set temp: %g F", CtoF(GetDesiredTemp()));
+  }
+  
   if (GetMode())
     sprintf(outputLine3, "%s", GetModeName(GetMode()));
   sprintf(outputLine4, "%s", LeftJustify(TimeToString(timeString)));
@@ -156,14 +173,22 @@ void SelectTemp() {
 
   if (CurrSetTemp == GetNoSetTemp())
     sprintf(outputLine1, "Temp not set!");
-  else
-    sprintf(outputLine1, "Set temp: %g", CurrSetTemp);
+  else {
+    if (Celcius)
+      sprintf(outputLine1, "Set temp: %g C", CurrSetTemp);
+    else
+      sprintf(outputLine1, "Set temp: %g F", CurrSetTemp);
+  }
   CenterLine(outputLine1);
 
   if (GetPotentiometer() < 0.01) 
     sprintf(outputLine2, "Desired: NONE");
-  else
-    sprintf(outputLine2, "Desired: %g", DesiredTempFromPot());
+  else {
+    if (Celcius)
+      sprintf(outputLine2, "Desired: %g C", DesiredTempFromPot());
+    else
+      sprintf(outputLine2, "Desired: %g F", CtoF(DesiredTempFromPot()));
+  }
   CenterLine(outputLine2);
   
   OrbitOledClear();
@@ -188,6 +213,35 @@ void SelectTemp() {
     CurrentPage = MenuDisplay;
 }
 
+void DisplaySetTime() {
+  const int numDays    = 7;
+  const int numHours   = 12;
+  const int numMinutes = 60;
+  const int numAMPM    = 2;
+  
+  static int currentSelect = 0; //0-3 option for whether selecting: Day, Hour, Min, AM/PM
+  static int selectDay     = 0;
+  static int selectHour    = 0;
+  static int selectMin     = 0;
+  static int selectAMPM    = 0;
+
+  char outputLine1[ScreenWidth+1] = "";
+  char outputLine3[ScreenWidth+1] = "";
+
+  sprintf(outputLine1, "Select Time:");
+
+  switch (currentSelect) {
+    case 0:
+      selectDay = (int)(GetPotentiometer()*NumModes);
+      sprintf(outputLine3, "%s %d:%02d %s", GetDayofWeek(selectDay), 
+                                 selectHour == 0 ? 12 : selectHour, 
+                                 selectMin,
+                                 (selectAMPM) ? "AM" : "PM");
+                        
+  }
+  
+}
+
 void DisplayTick() {
   switch(CurrentPage) {
     case MenuDisplay:
@@ -201,6 +255,9 @@ void DisplayTick() {
       break;
     case TempSelectDisplay:
       SelectTemp();
+      break;
+    case SetTimeDisplay:
+      DisplaySetTime();
       break;
   }
 }

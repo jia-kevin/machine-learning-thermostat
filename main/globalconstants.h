@@ -7,8 +7,8 @@ const int NoSetTemp      = MinSetTemp - 1;
 
 const int ScreenWidth    = 16;
 
-const int NumPages       = 5;
-const int NumMenuOptions = 6;
+const int NumPages       = 6;
+const int NumMenuOptions = 7;
 const int NumModes       = 5;
 
 #endif

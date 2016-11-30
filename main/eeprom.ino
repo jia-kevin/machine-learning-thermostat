@@ -61,8 +61,6 @@ void EepromReadSchedule(float *readTo, int scheduleNum) {
     size_t const DataLength   = 1;
     uint32_t data[DataLength] = { 0 };
     
-    char output[10] = "";
-    
     WireWriteRegister(Eeprom, mostSignificantBit,  leastSignificantBit);
     WireRequestArray(Eeprom, data, DataLength);
     readTo[i] = data[0];
@@ -76,9 +74,6 @@ void EepromReadSchedule(float *readTo, int scheduleNum) {
     WireRequestArray(Eeprom, data, DataLength);
     if (data[0] == 128)
       readTo[i] += 0.5;
-
-    sprintf(output,"%g", readTo[i]);
-    Serial.println(output);
   }
 }
 
@@ -93,9 +88,6 @@ void EepromWriteSchedule(float *writeFrom, int scheduleNum) {
     data = (int) (writeFrom[i] + EPS);
     uint8_t data2 = data;
     WireWriteByteToRegister(Eeprom, mostSignificantBit, leastSignificantBit, data);
-    char output[10] = "";
-    sprintf(output,"%d", data);
-    Serial.println(output);
     
     delay(5);
     mostSignificantBit        = (int)((memAddress+2*i+1) >> 8);

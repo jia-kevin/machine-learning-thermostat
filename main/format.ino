@@ -92,3 +92,7 @@ char* TimeToString(char* input) {
   return input;
 }
 
+char* GetDayofWeek(int i) {
+  return DaysofWeek[i];
+}
+
