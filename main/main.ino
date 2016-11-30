@@ -6,17 +6,22 @@
 #include <OrbitOledChar.h>
 #include <OrbitOledGrph.h>
 #include <string.h>
+#include "globalconstants.h"
 
 void setup() {
   Serial.begin(9600);
   OrbitOledInit();
+  char outputLine[ScreenWidth+1] = "Loading...";
+  OrbitOledClear();
+  OrbitOledSetCursor(0, 0);
+  OrbitOledPutString(CenterLine(outputLine));
   
   WireInit();
+  EepromInit();
   TempInit();
   ControlInit();
   UiInit();
   TimeInit();
-  EepromInit();
 }
 
 void loop() {

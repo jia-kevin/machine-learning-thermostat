@@ -9,6 +9,7 @@
  *Schedule Format: Mon-Sun
  *                 Each day starts at 12:00am and ends 11:45PM
  */
+//#include <I2CEEPROM.h>
 #define EPS 1e-9
 
 const        int Eeprom                 = EEPROMADDR;
@@ -50,27 +51,34 @@ void EepromInit() {
 }
 
 void EepromReadSchedule(float *readTo, int scheduleNum) {
+  scheduleNum--;
   short memAddress = scheduleNum * ScheduleArraySize;
   
   for (int i=0; i<ScheduleArrayElements; i++) {
-    int mostSignificantBit    = (memAddress+2*i) >> 8;
-    int leastSignificantBit   = (memAddress+2*i) & 0xFF;
+    delay(5);
+    uint8_t mostSignificantBit    = (int)((memAddress+2*i) >> 8);
+    uint8_t leastSignificantBit   = (int)((memAddress+2*i) & 0xFF);
     size_t const DataLength   = 1;
     uint32_t data[DataLength] = { 0 };
+    
+    char output[10] = "";
     
     WireWriteRegister(Eeprom, mostSignificantBit,  leastSignificantBit);
     WireRequestArray(Eeprom, data, DataLength);
     readTo[i] = data[0];
     if (readTo[i] > 128)
       readTo[i] -= 256;
-
-    mostSignificantBit        = (memAddress+2*i+1) >> 8;
-    leastSignificantBit       = (memAddress+2*i+1) & 0xFF;
+    mostSignificantBit        = (int)((memAddress+2*i+1) >> 8);
+    leastSignificantBit       = (int)((memAddress+2*i+1) & 0xFF);
     
+    delay(5);
     WireWriteRegister(Eeprom, mostSignificantBit,  leastSignificantBit);
     WireRequestArray(Eeprom, data, DataLength);
     if (data[0] == 128)
       readTo[i] += 0.5;
+
+    sprintf(output,"%g", readTo[i]);
+    Serial.println(output);
   }
 }
 
@@ -78,16 +86,20 @@ void EepromWriteSchedule(float *writeFrom, int scheduleNum) {
   short memAddress = scheduleNum * ScheduleArraySize;
   
   for (int i=0; i<ScheduleArrayElements; i++) {
-    int mostSignificantBit    = (memAddress+2*i) >> 8;
-    int leastSignificantBit   = (memAddress+2*i) & 0xFF;
+    delay(5);
+    int mostSignificantBit    = (int)((memAddress+2*i) >> 8);
+    int leastSignificantBit   = (int)((memAddress+2*i) & 0xFF);
     uint8_t data              = 0;
-    
     data = (int) (writeFrom[i] + EPS);
+    uint8_t data2 = data;
     WireWriteByteToRegister(Eeprom, mostSignificantBit, leastSignificantBit, data);
-
-    mostSignificantBit        = (memAddress+2*i+1) >> 8;
-    leastSignificantBit       = (memAddress+2*i+1) & 0xFF;
+    char output[10] = "";
+    sprintf(output,"%d", data);
+    Serial.println(output);
     
+    delay(5);
+    mostSignificantBit        = (int)((memAddress+2*i+1) >> 8);
+    leastSignificantBit       = (int)((memAddress+2*i+1) & 0xFF);
     if (fabs((writeFrom[i] - (int) (writeFrom[i] + EPS)) - 0.5) < EPS)
       data = 128;
     else 

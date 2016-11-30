@@ -1,10 +1,10 @@
 #include <math.h>
 #include <stdbool.h>
 #include <string.h>
+#include "datetime.h"
+#include "globalconstants.h"
 
 #define EPS 1e-9
-
-const int         ScreenWidth      = 16;
 
 static const char DaysofWeek[7][4] = {
   "Mon",
@@ -75,7 +75,20 @@ float CtoF(float C) {
   return (9 * C / 5 + 32);
 }
 
-char* GetModeName(int i) {
+const char* GetModeName(int i) {
   return ModeNames[i];
+}
+
+char* TimeToString(char* input) {
+  struct DateTime currTime = GetTime();
+  char result[ScreenWidth+1] = "";
+
+  sprintf(result, "%s %d:%02d %s", DaysofWeek[currTime.day], 
+                                 (currTime.hour%12 == 0) ? 12 : currTime.hour%12, 
+                                 currTime.minute,
+                                 (currTime.hour>=12) ? "PM" : "AM");
+
+  strcpy(input, result);
+  return input;
 }
 

@@ -27,7 +27,7 @@ void ControlInit() {
   for (int i=0; i<ButtonCount; i++)
     pinMode(Buttons[i], INPUT);
    pinMode(Potentiometer, INPUT);
-   pinMode(Relay, OUTPUT);
+   //pinMode(Relay, OUTPUT);
 }
 
 void ReadInput() {

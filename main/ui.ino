@@ -7,10 +7,7 @@
 #include <OrbitOledGrph.h>
 #include <string.h>
 #include <stdbool.h>
-
-static const int NumPages       = 5;
-static const int NumMenuOptions = 6;
-static const int NumModes       = 5;
+#include "globalconstants.h"
 
 static float CurrSetTemp;
 static float TempSetTemp;
@@ -24,7 +21,7 @@ static enum Pages {
   ModeSelect        = 2,
   TempSelectDisplay = 3,
   ModifySchedule    = 4,
-} CurrentPage = TempDisplay;
+} CurrentPage = MenuDisplay;
 
 static enum MenuOptions {
   ToTemp                 = 0,
@@ -105,15 +102,25 @@ void DisplayTemp() {
   char outputLine2[ScreenWidth+1] = "";
   char outputLine3[ScreenWidth+1] = "";
   char outputLine4[ScreenWidth+1] = "";
-  
+  char timeString [ScreenWidth+1] = "";
+  Serial.println("1");
   sprintf(outputLine1, "Temp: %g C", TempRead());
 
   if (TempIsSet())
     sprintf(outputLine2, "Set temp: %g C", GetDesiredTemp());
   if (GetMode())
     sprintf(outputLine3, "%s", GetModeName(GetMode()));
+  sprintf(outputLine4, "%s", LeftJustify(TimeToString(timeString)));
+  
   OrbitOledClear();
   OrbitOledSetCursor(0, 0);
+  OrbitOledPutString(outputLine1);
+  OrbitOledSetCursor(0, 1);
+  OrbitOledPutString(outputLine2);
+  OrbitOledSetCursor(0, 2);
+  OrbitOledPutString(outputLine3);
+  OrbitOledSetCursor(0, 3);
+  OrbitOledPutString(outputLine4);
   
   if (GetButtonCancel())
     CurrentPage = MenuDisplay;
@@ -174,8 +181,7 @@ void SelectTemp() {
     SetDesiredTemp(CurrSetTemp);
     
     if (CurrentMode != None && CurrentMode != MachineLearning) {
-      if (IsMachineLearning) CurrentMode = MachineLearning;
-      else CurrentMode = None;
+      CurrentMode = None;
     }
   } 
   else if (GetButtonCancel())
@@ -201,5 +207,9 @@ void DisplayTick() {
 
 int GetMode() {
   return static_cast<int>(CurrentMode);
+}
+
+int GetNumModes() {
+  return NumModes;
 }
 
