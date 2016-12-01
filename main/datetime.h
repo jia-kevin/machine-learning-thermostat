@@ -5,7 +5,7 @@ struct DateTime {
   int           day;  //0-monday, 6-sunday
   int           hour; //24 hour;
   int           minute;
-  uint64_t millisecondTime;
+  uint64_t      millisecondTime;
 };
 
 #endif

@@ -1,3 +1,13 @@
+/*
+ * Left Switch: Temp Lock (set temperature will not change because of schedules)
+ * Right Switch: Screen Lock (locks on Display Temperature screen)
+ * Button 2: Enter
+ * Button 1: Cancel
+ * Potentiometer: analog input
+ * Green Light: Shows that heater is on
+ * Relay: Controls heating circuit (High turns heater on)
+ */
+
 #include <stdbool.h>
 
 const uint32_t SwitchCount           = 2;
@@ -42,6 +52,7 @@ void ReadInput() {
   ControlInputState.potentiometer = analogRead(Potentiometer);
 }
 
+//Buttons only work if controls are not locked from the control switch
 bool GetButtonEnter() {
   return (ControlInputState.buttons[0].isRising && ControlInputState.switches[1]);
 }

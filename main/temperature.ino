@@ -7,6 +7,7 @@
 const static int TemperatureSensor = TEMPADDR;
 
 static float   DesiredTemp = GetNoSetTemp();
+static float   FinalIntervalTemp = GetNoSetTemp(); 
 static bool    HeatingOn;
 static float   Schedules[NumModes-1][ScheduleArrayElements];
 
@@ -29,6 +30,12 @@ float TempRead() {
   if (data[1] == 128)
     temp += 0.5;
 
+  if (GetTime().minute % MinutesInInterval == MinutesInInterval - 1) {
+    if (GetDesiredTemp() == NoSetTemp)
+      FinalIntervalTemp = temp;
+    else
+      FinalIntervalTemp = GetDesiredTemp();
+  }
   return temp;
 }
 
@@ -58,6 +65,10 @@ int GetNoSetTemp() {
   return NoSetTemp;
 }
 
+float GetFinalIntervalTemp() {
+  return FinalIntervalTemp;
+}
+
 void LoadSchedules() {
   for (int i=0; i<NumModes-1; i++) {
     EepromReadSchedule(Schedules[i], i);
@@ -70,6 +81,7 @@ void SaveNewSchedule(float newSchedule[], int mode) {
     Schedules[mode-1][i] = newSchedule[i];
   }
 }
+
 void ControlHVAC() {
   if (TempRead() < GetDesiredTemp())  {
     setHeater(true);
@@ -79,9 +91,6 @@ void ControlHVAC() {
   }
 }
 
-void ControlTempMenu() {
-  
-}
 void ControlTemp() {
   if (GetMode() && GetSwitchTempLock()) {
     struct DateTime current = GetTime();
@@ -95,5 +104,9 @@ void ControlTemp() {
   }
 
   ControlHVAC();
+}
+
+float GetScheduleTemp(int mode, int index) {
+  return Schedules[mode-1][index];
 }
 

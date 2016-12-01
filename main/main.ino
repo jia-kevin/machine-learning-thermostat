@@ -7,6 +7,7 @@
 #include <OrbitOledGrph.h>
 #include <string.h>
 #include "globalconstants.h"
+#include "datetime.h"
 
 void setup() {
   Serial.begin(9600);
@@ -17,9 +18,10 @@ void setup() {
   OrbitOledPutString(CenterLine(outputLine));
   
   WireInit();
-  //EepromInit();
+  EepromInit();
   TempInit();
   ControlInit();
+  RLInit();
   UiInit();
   TimeInit();
 }
@@ -29,4 +31,8 @@ void loop() {
   ReadInput();
   DisplayTick();
   ControlTemp();
+  if (GetIsMachineLearning()) 
+    PollMLData();
+  if (GetTime().day == 0 && GetTime().hour == 2 && GetTime().minute == 1) //Monday, 2:01 AM
+    LoadSchedules();                                                      //Update machine learning schedules once a week
 }

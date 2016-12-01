@@ -457,6 +457,8 @@ void SelectTemp() {
   PrintScreen(outputLine1, outputLine2, outputLine3, outputLine4);
 
   if (GetButtonEnter()){
+    TempChangeToTrue();
+    
     if (GetPotentiometer() < 0.01)
       CurrSetTemp = GetNoSetTemp();
     else
@@ -464,7 +466,7 @@ void SelectTemp() {
 
     SetDesiredTemp(CurrSetTemp);
     
-    if (CurrentMode != None && CurrentMode != MachineLearning) {
+    if (CurrentMode != None) {
       CurrentMode = None;
     }
   } 
@@ -591,5 +593,9 @@ int GetMode() {
 
 int GetNumModes() {
   return NumModes;
+}
+
+bool GetIsMachineLearning() {
+  return IsMachineLearning;
 }
 

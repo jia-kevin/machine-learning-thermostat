@@ -17,7 +17,7 @@ const int Eeprom = EEPROMADDR;
 void EepromInit() { 
   float schedule[ScheduleArrayElements] = { 0 };
 
-  //Vacation Schedule
+  //Input Vacation Schedule
   //16 C from 8pm to 7 am, 18 C from 7am to 8pm
   for (int i=0; i<DaysInWeek; i++) {
     for (int j=0; j<IntervalsInHour*7; j++) 
@@ -30,7 +30,7 @@ void EepromInit() {
 
   EepromWriteSchedule(schedule, 1);
 
-  //Power Saver Schedule
+  //Input Power Saver Schedule
   //21 C from 12am to 9 am, 18 C from 9am to 4pm, 21.5 C from 4pm to 12am
   for (int i=0; i<DaysInWeek; i++) {
     for (int j=0; j<IntervalsInHour*9; j++) 
@@ -92,3 +92,23 @@ void EepromWriteSchedule(float *writeFrom, int scheduleNum) {
     WireWriteByteToRegister(Eeprom, mostSignificantBit, leastSignificantBit, data);
   }
 }
+
+void EepromReadByte(int *readByte, int memAddress) {
+  delay(5);
+  uint8_t mostSignificantBit    = (int)((memAddress) >> 8);
+  uint8_t leastSignificantBit   = (int)((memAddress) & 0xFF);
+  size_t const DataLength       = 1;
+  uint32_t data[DataLength]     = { 0 };
+ 
+  WireWriteRegister(Eeprom, mostSignificantBit,  leastSignificantBit);
+  WireRequestArray(Eeprom, data, DataLength);
+  *readByte = data[0];
+}
+
+void EepromWriteByte(int *writeByte, int memAddress) {
+    delay(5);
+    int mostSignificantBit    = (int)((memAddress) >> 8);
+    int leastSignificantBit   = (int)((memAddress) & 0xFF);
+    WireWriteByteToRegister(Eeprom, mostSignificantBit, leastSignificantBit, *writeByte);
+}
+

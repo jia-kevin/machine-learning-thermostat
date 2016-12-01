@@ -96,6 +96,7 @@ char* GetDayofWeek(int i) {
   return DaysofWeek[i];
 }
 
+//Returns whether a selection is flashing on or off
 bool IsFlashing() {
   return (millis()/500)%2;
 }
