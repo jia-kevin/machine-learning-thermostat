@@ -6,7 +6,7 @@
 
 const static int TemperatureSensor = TEMPADDR;
 
-static float   DesiredTemp;
+static float   DesiredTemp = GetNoSetTemp();
 static bool    HeatingOn;
 static float   Schedules[NumModes-1][ScheduleArrayElements];
 
@@ -65,14 +65,32 @@ void LoadSchedules() {
 }
 
 void ControlHVAC() {
-  if (TempRead() < GetDesiredTemp()) 
+  Serial.println("helloooo");
+  char output[20];
+  sprintf(output, "%g", GetDesiredTemp());
+  Serial.println(output);
+  sprintf(output, "%g", TempRead());
+  Serial.println(output);
+  if (TempRead() < GetDesiredTemp())  {
+  Serial.println("helloooo1");
     setHeater(true);
-  else
+  Serial.println("helloooo2");
+  }
+  else {
+  Serial.println("helloooo3");
     setHeater(false);
+  Serial.println("helloooo4");
+  }
 }
 
+void ControlTempMenu() {
+  
+}
 void ControlTemp() {
   if (GetMode() && GetSwitchTempLock()) {
+    Serial.println("1 ");
+    Serial.println("22");
+    Serial.println(" ");
     struct DateTime current = GetTime();
 
     int index = 0;

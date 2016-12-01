@@ -9,16 +9,10 @@
  *Schedule Format: Mon-Sun
  *                 Each day starts at 12:00am and ends 11:45PM
  */
-//#include <I2CEEPROM.h>
+#include "globalconstants.h"
 #define EPS 1e-9
 
-const        int Eeprom                 = EEPROMADDR;
-const        int DaysInWeek             = 7;
-const        int HoursInDay             = 24;
-const        int IntervalsInHour        = 4;
-const        int MinutesInInterval      = 15;
-const        int ScheduleArrayElements  = DaysInWeek * HoursInDay * IntervalsInHour;
-const static int ScheduleArraySize      = 2 * ScheduleArrayElements;
+const int Eeprom = EEPROMADDR;
 
 void EepromInit() { 
   float schedule[ScheduleArrayElements] = { 0 };

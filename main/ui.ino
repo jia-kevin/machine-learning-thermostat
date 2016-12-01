@@ -13,17 +13,20 @@
 static float CurrSetTemp;
 static float TempSetTemp;
 
+float TenativeSchedule[ScheduleArrayElements];
+
 bool IsMachineLearning = true;
 bool Celcius           = true;
+bool IsEditingSchedule = false;
 
 static enum Pages {
-  MenuDisplay       = 0,
-  TempDisplay       = 1,
-  ModeSelect        = 2,
-  TempSelectDisplay = 3,
-  ModifySchedule    = 4,
-  SetTimeDisplay    = 5,          
-} CurrentPage = MenuDisplay;
+  MenuDisplay        = 0,
+  TempDisplay        = 1,
+  ModeSelect         = 2,
+  TempSelectDisplay  = 3,
+  ModifyScheduleMenu = 4,
+  SetTimeDisplay     = 5,          
+} CurrentPage = TempDisplay;
 
 static enum MenuOptions {
   ToTemp                 = 0,
@@ -34,6 +37,12 @@ static enum MenuOptions {
   MachineLearningToggle  = 5,
   CelciusFarenheitToggle = 6,
 } CurrentMenuOption = ToTemp;
+
+static enum ScheduleMenuOptions {
+  EditSchedule           = 0,
+  SaveSchedule           = 1,
+  ClearSchedule          = 2,
+} CurrentScheduleMenuOption = EditSchedule;
 
 static enum Modes {
   None                   = 0,
@@ -74,6 +83,8 @@ void DisplayMenu() {
       
     case ToModifySchedule:
       sprintf(outputLine1, "Change Schedule");
+      if (GetButtonEnter()) 
+        CurrentPage = ModifyScheduleMenu;
       break;
 
     case ToSetTimeDisplay:
@@ -164,7 +175,240 @@ void SelectMode() {
     CurrentPage = MenuDisplay;
 }
 
-void SelectSchedule() {
+void SelectScheduleMenu() {
+  const int numOptions = 3;
+
+  char outputLine1[ScreenWidth+1] = "";
+  char outputLine3[ScreenWidth+1] = "";
+
+  sprintf(outputLine1, "Schedule Menu:");
+  CenterLine(outputLine1);
+  if (IsEditingSchedule) {
+    DisplayEditSchedule();
+  }
+  else {
+    CurrentScheduleMenuOption = static_cast<enum ScheduleMenuOptions>((int)(GetPotentiometer()*numOptions));
+    switch (CurrentScheduleMenuOption) {
+      case EditSchedule:
+        sprintf(outputLine3, "Edit Schedule");
+        if (GetButtonEnter()) {
+          IsEditingSchedule = true;
+        }
+        break;
+        
+      case SaveSchedule:
+        sprintf(outputLine3, "Save Schedule");
+        if (GetButtonEnter()) {
+          
+        }
+        break;
+        
+      case ClearSchedule:
+        sprintf(outputLine3, "Clear Schedule");
+        if (GetButtonEnter()) {
+        }
+        break;
+    }
+    CenterLine(outputLine3);
+    OrbitOledClear();
+    OrbitOledSetCursor(0, 0);
+    OrbitOledPutString(outputLine1);
+    OrbitOledSetCursor(0, 2);
+    OrbitOledPutString(outputLine3);
+  }
+}
+
+void DisplayEditSchedule() {
+  const int numDays    = 10; //(7 - Weekday, 8 - Weekend)
+  const int numHours   = 12;
+  const int numMin     = IntervalsInHour;
+  const int numAMPM    = 2;
+  
+  static int currentSelect = 0; //0-7 option for whether selecting: Day, Hour, Min, AM/PM
+  static int selectDay        = {0};
+  static int selectHour[2]    = {0};
+  static int selectMin [2]    = {0};
+  static int selectAMPM[2]    = {0};
+  static float selectTemp     = GetNoSetTemp();
+
+  char outputLine1[ScreenWidth+1] = "";
+  char outputLine2[ScreenWidth+1] = "";
+  char outputLine3[ScreenWidth+1] = "";
+  char outputLine4[ScreenWidth+1] = "";
+ 
+  char printDay [6]; 
+  char printHour[2][3];
+  char printMin [2][3];
+  char printAMPM[2][3];
+  char printTemp[5];
+  if (selectTemp == GetNoSetTemp())
+    sprintf(printTemp, "NONE");
+  else {
+    if (Celcius)
+      sprintf(printTemp, "%g C", selectTemp);
+    else
+      sprintf(printTemp, "%g F", CtoF(selectTemp));
+  }
+  
+  sprintf(printDay, "%s", GetDayofWeek(selectDay));
+  
+  sprintf(printHour[0], "%2d", selectHour[0] == 0 ? 12 : selectHour[0]);
+  sprintf(printMin[0], "%02d", selectMin[0]*MinutesInInterval);
+  sprintf(printAMPM[0], "%s", selectAMPM[0] == 0 ? "AM" : "PM");
+  
+  sprintf(printHour[1], "%2d", selectHour[1] == 0 ? 12 : selectHour[1]);
+  sprintf(printMin[1], "%02d", selectMin[1]*MinutesInInterval);
+  sprintf(printAMPM[1], "%s", selectAMPM[1] == 0 ? "AM" : "PM");
+
+  switch (currentSelect) {
+    case 0:
+      selectDay = (int)(GetPotentiometer()*numDays);
+      if (selectDay <= 6) {
+        sprintf(printDay, "%s", GetDayofWeek(selectDay));
+        if (IsFlashing()) 
+          sprintf(printDay, "   ");
+      }
+      if (selectDay == 7) {
+        sprintf(printDay, "%s", "WKDAY");
+        if (IsFlashing()) 
+          sprintf(printDay, "     ");
+      }
+      if (selectDay == 8) {
+        sprintf(printDay, "%s", "WKEND");
+        if (IsFlashing()) 
+          sprintf(printDay, "     ");
+      }
+      if (selectDay == 9) {
+        sprintf(printDay, "%s", "ALL");
+        if (IsFlashing()) 
+          sprintf(printDay, "   ");
+      }
+      break;
+      
+    case 1:
+      selectHour[0] = (int)(GetPotentiometer()*numHours);
+      sprintf(printHour[0], "%2d", selectHour[0] == 0 ? 12 : selectHour[0]);
+      if (IsFlashing()) {
+        sprintf(printHour[0], "  ");
+      }
+      break;
+      
+    case 2:
+      selectMin[0] = (int)(GetPotentiometer()*numMin);
+      sprintf(printMin[0], "%02d", selectMin[0]*MinutesInInterval);
+      if (IsFlashing()) {
+        sprintf(printMin[0], "  ");
+      }
+      break;
+      
+    case 3:
+      selectAMPM[0] = (int)(GetPotentiometer()*numAMPM);
+      sprintf(printAMPM[0], "%s", selectAMPM[0] == 0 ? "AM" : "PM");
+      if (IsFlashing()) {
+        sprintf(printAMPM[0], "  ");
+      }
+      break;
+      
+    case 4:
+      selectHour[1] = (int)(GetPotentiometer()*numHours);
+      sprintf(printHour[1], "%2d", selectHour[1] == 0 ? 12 : selectHour[1]);
+      if (IsFlashing()) {
+        sprintf(printHour[1], "  ");
+      }
+      break;
+      
+    case 5:
+      selectMin[1] = (int)(GetPotentiometer()*numMin);
+      sprintf(printMin[1], "%02d", selectMin[1]*MinutesInInterval);
+      if (IsFlashing()) {
+        sprintf(printMin[1], "  ");
+      }
+      break;
+      
+    case 6:
+      selectAMPM[1] = (int)(GetPotentiometer()*numAMPM);
+      sprintf(printAMPM[1], "%s", selectAMPM[1] == 0 ? "AM" : "PM");
+      if (IsFlashing()) {
+        sprintf(printAMPM[1], "  ");
+      }
+      break;
+      
+    case 7:
+      selectTemp = DesiredTempFromPot();
+      if (selectTemp == GetNoSetTemp()){
+        sprintf(printTemp, "NONE");
+      }
+      else {
+        if (Celcius)
+          sprintf(printTemp, "%g C", selectTemp);
+        else
+          sprintf(printTemp, "%g F", CtoF(selectTemp));
+      }
+      if (IsFlashing()) {
+        char spaces[strlen(printTemp)+1];
+        int i = 0;
+        for (i=0; i<strlen(printTemp); i++) 
+          spaces[i] = ' ';
+        spaces[i] = '\0';
+        sprintf(printTemp, "%s", spaces); 
+      }
+      break;
+  }
+  sprintf(outputLine1, "Day:   %s", printDay);
+  sprintf(outputLine2, "Start: %s:%s %s", printHour[0], printMin[0], printAMPM[0]);
+  sprintf(outputLine3, "End:   %s:%s %s", printHour[1], printMin[1], printAMPM[1]);
+  sprintf(outputLine4, "Temp:  %s", printTemp);
+  
+  OrbitOledClear();
+  OrbitOledSetCursor(0, 0);
+  OrbitOledPutString(outputLine1);
+  OrbitOledSetCursor(0, 1);
+  OrbitOledPutString(outputLine2);
+  OrbitOledSetCursor(0, 2);
+  OrbitOledPutString(outputLine3);
+  OrbitOledSetCursor(0, 3);
+  OrbitOledPutString(outputLine4);
+
+  if (GetButtonEnter()) {
+    currentSelect = (currentSelect+1)%8;
+    if (currentSelect == 0) {
+      if (TimeCompareFirst(selectHour[0] + 12*selectAMPM[0], selectMin[0], 
+                           selectHour[1] + 12*selectAMPM[1], selectMin[1])) {
+        sprintf(outputLine2, "Confirmed!");
+        CenterLine(outputLine2);
+        OrbitOledClear();
+        OrbitOledSetCursor(0, 1);
+        OrbitOledPutString(outputLine2);
+        delay(2000);
+        
+        IsEditingSchedule = false;
+      }
+      else {
+        sprintf(outputLine2, "Invalid Times!");
+        CenterLine(outputLine2);
+        OrbitOledClear();
+        OrbitOledSetCursor(0, 1);
+        OrbitOledPutString(outputLine2);
+        delay(2000);
+        currentSelect = 1;
+      }
+    }
+  }
+  else if (GetButtonCancel()) {
+    if (currentSelect == 0) {
+      selectDay     = 0;
+      selectHour[0] = 0;
+      selectHour[1] = 0;
+      selectMin [0] = 0;
+      selectMin [1] = 0;
+      selectAMPM[0] = 0;
+      selectAMPM[1] = 0;
+
+      IsEditingSchedule = false;
+    }
+    else
+      currentSelect = (currentSelect-1+8)%8;
+  }
 }
 
 void SelectTemp() {
@@ -266,14 +510,21 @@ void DisplaySetTime() {
       break;
     case 3:
       selectAMPM = (int)(GetPotentiometer()*numAMPM);
-      sprintf(printAMPM, "%s", (selectAMPM) ? "AM" : "PM");
+      sprintf(printAMPM, "%s", (selectAMPM == 0) ? "AM" : "PM");
       if (IsFlashing()) {
         sprintf(printAMPM, "  ");
       }
       break;            
   }
   sprintf(outputLine3, "%s %s:%s %s", printDay, printHour, printMin, printAMPM);
-
+  CenterLine(outputLine3);
+  
+  OrbitOledClear();
+  OrbitOledSetCursor(0, 0);
+  OrbitOledPutString(outputLine1);
+  OrbitOledSetCursor(0, 2);
+  OrbitOledPutString(outputLine3);
+  
   if (GetButtonEnter()) {
     currentSelect = (currentSelect+1)%4;
     if (currentSelect == 0) {
@@ -295,12 +546,19 @@ void DisplaySetTime() {
 }
 
 void DisplayTick() {
+  if (!GetSwitchControlLock()) {
+    DisplayTemp();
+    return;
+  }
   switch(CurrentPage) {
     case MenuDisplay:
       DisplayMenu();
       break;
     case TempDisplay:
       DisplayTemp();
+      break;
+    case ModifyScheduleMenu:
+      SelectScheduleMenu();
       break;
     case ModeSelect:
       SelectMode();

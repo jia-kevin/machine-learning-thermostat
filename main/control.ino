@@ -27,6 +27,7 @@ void ControlInit() {
   for (int i=0; i<ButtonCount; i++)
     pinMode(Buttons[i], INPUT);
    pinMode(Potentiometer, INPUT);
+   pinMode(GREEN_LED, OUTPUT);     
    //pinMode(Relay, OUTPUT);
 }
 
@@ -63,8 +64,19 @@ double GetPotentiometer() {
 }
 
 void setHeater(bool on) {
-  if (on)
+  if (on) {
+    Serial.println("eho");
+    digitalWrite(GREEN_LED, HIGH);
+    
+    Serial.println("eho1");
     digitalWrite(Relay, HIGH);
-  else
+    Serial.println("eho2");
+  }
+  else {
+    Serial.println("hooo");
+    digitalWrite(GREEN_LED, LOW);
+    Serial.println("hooo1");
     digitalWrite(Relay, LOW);
+    Serial.println("hooo2");
+  }
 }

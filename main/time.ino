@@ -63,3 +63,17 @@ struct DateTime GetTime() {
   return current;
 }
 
+/**
+ * TimeCompareFirst(int hour1, int min1, int hour2, int min2)
+ * 
+ * compares two times (time of day: hour&min) and 
+ * returns true if the first time is first
+ * returns false if the second time is first or at the same time
+ */
+bool TimeCompareFirst(int hour1, int min1, int hour2, int min2) {
+  int minutes1 = 60*hour1 + min1;
+  int minutes2 = 60*hour2 + min2;
+
+  return (minutes1 < minutes2);
+}
+
