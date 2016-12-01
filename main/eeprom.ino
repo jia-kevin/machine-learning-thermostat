@@ -45,7 +45,6 @@ void EepromInit() {
 }
 
 void EepromReadSchedule(float *readTo, int scheduleNum) {
-  scheduleNum--;
   short memAddress = scheduleNum * ScheduleArraySize;
   
   for (int i=0; i<ScheduleArrayElements; i++) {

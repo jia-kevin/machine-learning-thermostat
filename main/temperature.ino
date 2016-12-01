@@ -64,22 +64,18 @@ void LoadSchedules() {
   }
 }
 
+void SaveNewSchedule(float newSchedule[], int mode) {
+  EepromWriteSchedule(newSchedule, mode-1);
+  for (int i=0; i<ScheduleArrayElements; i++) {
+    Schedules[mode-1][i] = newSchedule[i];
+  }
+}
 void ControlHVAC() {
-  Serial.println("helloooo");
-  char output[20];
-  sprintf(output, "%g", GetDesiredTemp());
-  Serial.println(output);
-  sprintf(output, "%g", TempRead());
-  Serial.println(output);
   if (TempRead() < GetDesiredTemp())  {
-  Serial.println("helloooo1");
     setHeater(true);
-  Serial.println("helloooo2");
   }
   else {
-  Serial.println("helloooo3");
     setHeater(false);
-  Serial.println("helloooo4");
   }
 }
 
@@ -88,9 +84,6 @@ void ControlTempMenu() {
 }
 void ControlTemp() {
   if (GetMode() && GetSwitchTempLock()) {
-    Serial.println("1 ");
-    Serial.println("22");
-    Serial.println(" ");
     struct DateTime current = GetTime();
 
     int index = 0;
@@ -98,7 +91,7 @@ void ControlTemp() {
     index += IntervalsInHour*current.hour;
     index += current.minute/MinutesInInterval;
 
-    SetDesiredTemp(Schedules[GetMode()][index]);
+    SetDesiredTemp(Schedules[GetMode()-1][index]);
   }
 
   ControlHVAC();

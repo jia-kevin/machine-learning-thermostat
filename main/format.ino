@@ -100,3 +100,31 @@ bool IsFlashing() {
   return (millis()/500)%2;
 }
 
+void PrintScreen(char* outline1, char* outline2, char* outline3, char* outline4) {
+  static char line1[ScreenWidth+1] = "";
+  static char line2[ScreenWidth+1] = "";
+  static char line3[ScreenWidth+1] = "";
+  static char line4[ScreenWidth+1] = "";
+
+  if (!(strcmp(line1, outline1) == 0 &&
+        strcmp(line2, outline2) == 0 &&
+        strcmp(line3, outline3) == 0 &&
+        strcmp(line4, outline4) == 0)) {
+    strcpy(line1, outline1);
+    strcpy(line2, outline2);
+    strcpy(line3, outline3); 
+    strcpy(line4, outline4);
+
+
+    OrbitOledClear();
+    OrbitOledSetCursor(0, 0);
+    OrbitOledPutString(line1);
+    OrbitOledSetCursor(0, 1);
+    OrbitOledPutString(line2);
+    OrbitOledSetCursor(0, 2);
+    OrbitOledPutString(line3);
+    OrbitOledSetCursor(0, 3);
+    OrbitOledPutString(line4);
+  }
+}
+

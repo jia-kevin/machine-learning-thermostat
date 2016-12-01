@@ -6,7 +6,7 @@ const uint32_t Switches[SwitchCount] = { PA_6, PA_7 };
 const uint32_t Buttons[ButtonCount]  = { PE_0, PD_2 };
 const uint32_t Potentiometer         = PE_3;
 const uint32_t PotentiometerMax      = 4100;
-const uint32_t Relay                 = PB_2;
+const uint32_t Relay                 = 17;
 
 struct ButtonState { 
   bool state;
@@ -28,7 +28,7 @@ void ControlInit() {
     pinMode(Buttons[i], INPUT);
    pinMode(Potentiometer, INPUT);
    pinMode(GREEN_LED, OUTPUT);     
-   //pinMode(Relay, OUTPUT);
+   pinMode(Relay, OUTPUT);
 }
 
 void ReadInput() {
@@ -65,18 +65,11 @@ double GetPotentiometer() {
 
 void setHeater(bool on) {
   if (on) {
-    Serial.println("eho");
     digitalWrite(GREEN_LED, HIGH);
-    
-    Serial.println("eho1");
     digitalWrite(Relay, HIGH);
-    Serial.println("eho2");
   }
   else {
-    Serial.println("hooo");
     digitalWrite(GREEN_LED, LOW);
-    Serial.println("hooo1");
     digitalWrite(Relay, LOW);
-    Serial.println("hooo2");
   }
 }

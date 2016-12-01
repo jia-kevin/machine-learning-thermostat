@@ -60,61 +60,62 @@ void UiInit() {
 void DisplayMenu() {
   char outputLine1[ScreenWidth+1] = "";
   char outputLine2[ScreenWidth+1] = "";
+  char outputLine3[ScreenWidth+1] = "";
+  char outputLine4[ScreenWidth+1] = "";
+  
+  sprintf(outputLine1, "MENU");
   
   CurrentMenuOption = static_cast<enum MenuOptions>((int)(GetPotentiometer()*NumMenuOptions));
   switch (CurrentMenuOption) {
     case ToTemp:
-      sprintf(outputLine1, "Display Temp");
+      sprintf(outputLine3, "Display Temp");
       if (GetButtonEnter())
         CurrentPage = TempDisplay;
       break;
       
     case ToModeSelect:
-      sprintf(outputLine1, "Select Mode");
+      sprintf(outputLine3, "Select Mode");
       if (GetButtonEnter()) 
         CurrentPage = ModeSelect;
       break;
 
     case ToTempSelect:
-      sprintf(outputLine1, "Select Temp");
+      sprintf(outputLine3, "Select Temp");
       if (GetButtonEnter()) 
         CurrentPage = TempSelectDisplay;
       break;
       
     case ToModifySchedule:
-      sprintf(outputLine1, "Change Schedule");
+      sprintf(outputLine3, "Change Schedule");
       if (GetButtonEnter()) 
         CurrentPage = ModifyScheduleMenu;
       break;
 
     case ToSetTimeDisplay:
-      sprintf(outputLine1, "Set Time");
+      sprintf(outputLine3, "Set Time");
       if (GetButtonEnter())
         CurrentPage = SetTimeDisplay;
       break;
     
     case MachineLearningToggle:
-      sprintf(outputLine1, "Machine Learning");
-      sprintf(outputLine2, "%s", IsMachineLearning ? "ON" : "OFF");
+      sprintf(outputLine3, "Machine Learning");
+      sprintf(outputLine4, "%s", IsMachineLearning ? "ON" : "OFF");
       if (GetButtonEnter()) 
         IsMachineLearning = !IsMachineLearning;
       break;
       
     case CelciusFarenheitToggle:
-      sprintf(outputLine1, "Degrees C/F");
-      sprintf(outputLine2, "%s", Celcius ? "Celcius" : "Farenheit");
+      sprintf(outputLine3, "Degrees C/F");
+      sprintf(outputLine4, "%s", Celcius ? "Celcius" : "Farenheit");
       if (GetButtonEnter()) 
         Celcius = !Celcius;
       break;
   }
   CenterLine(outputLine1);
-  CenterLine(outputLine2);
+  CenterLine(outputLine3);
+  CenterLine(outputLine4);
   
-  OrbitOledClear();
-  OrbitOledSetCursor(0, 0);
-  OrbitOledPutString(outputLine1);
-  OrbitOledSetCursor(0, 1);
-  OrbitOledPutString(outputLine2);
+  PrintScreen(outputLine1, outputLine2, outputLine3, outputLine4);
 }
 
 void DisplayTemp() {
@@ -140,15 +141,7 @@ void DisplayTemp() {
     sprintf(outputLine3, "%s", GetModeName(GetMode()));
   sprintf(outputLine4, "%s", LeftJustify(TimeToString(timeString)));
   
-  OrbitOledClear();
-  OrbitOledSetCursor(0, 0);
-  OrbitOledPutString(outputLine1);
-  OrbitOledSetCursor(0, 1);
-  OrbitOledPutString(outputLine2);
-  OrbitOledSetCursor(0, 2);
-  OrbitOledPutString(outputLine3);
-  OrbitOledSetCursor(0, 3);
-  OrbitOledPutString(outputLine4);
+  PrintScreen(outputLine1, outputLine2, outputLine3, outputLine4);
   
   if (GetButtonCancel())
     CurrentPage = MenuDisplay;
@@ -157,17 +150,15 @@ void DisplayTemp() {
 void SelectMode() {
   char outputLine1[ScreenWidth+1] = "";
   char outputLine2[ScreenWidth+1] = "";
+  char outputLine3[ScreenWidth+1] = "";
+  char outputLine4[ScreenWidth+1] = "";
 
   sprintf(outputLine1, "Curr: %s", ModeNames[CurrentMode]);
   sprintf(outputLine2, "%s", ModeNames[(int)(GetPotentiometer()*NumModes)]);
 
   CenterLine(outputLine2);
   
-  OrbitOledClear();
-  OrbitOledSetCursor(0, 0);
-  OrbitOledPutString(outputLine1);
-  OrbitOledSetCursor(0, 1);
-  OrbitOledPutString(outputLine2);
+  PrintScreen(outputLine1, outputLine2, outputLine3, outputLine4);
 
   if (GetButtonEnter()) 
     CurrentMode = static_cast<enum Modes>((int)(GetPotentiometer()*NumModes));
@@ -179,7 +170,9 @@ void SelectScheduleMenu() {
   const int numOptions = 3;
 
   char outputLine1[ScreenWidth+1] = "";
+  char outputLine2[ScreenWidth+1] = "";
   char outputLine3[ScreenWidth+1] = "";
+  char outputLine4[ScreenWidth+1] = "";
 
   sprintf(outputLine1, "Schedule Menu:");
   CenterLine(outputLine1);
@@ -199,22 +192,25 @@ void SelectScheduleMenu() {
       case SaveSchedule:
         sprintf(outputLine3, "Save Schedule");
         if (GetButtonEnter()) {
-          
+          SaveNewSchedule(TenativeSchedule, Schedule);
         }
         break;
         
       case ClearSchedule:
         sprintf(outputLine3, "Clear Schedule");
         if (GetButtonEnter()) {
+          for (int i=0; i<ScheduleArrayElements; i++) {
+            TenativeSchedule[i] = GetNoSetTemp();
+          }
         }
         break;
     }
     CenterLine(outputLine3);
-    OrbitOledClear();
-    OrbitOledSetCursor(0, 0);
-    OrbitOledPutString(outputLine1);
-    OrbitOledSetCursor(0, 2);
-    OrbitOledPutString(outputLine3);
+    
+    PrintScreen(outputLine1, outputLine2, outputLine3, outputLine4);
+    
+    if (GetButtonCancel())
+      CurrentPage = MenuDisplay;
   }
 }
 
@@ -224,7 +220,7 @@ void DisplayEditSchedule() {
   const int numMin     = IntervalsInHour;
   const int numAMPM    = 2;
   
-  static int currentSelect = 0; //0-7 option for whether selecting: Day, Hour, Min, AM/PM
+  static int currentSelect    = 0; //0-7 option for whether selecting: Day, Hour, Min, AM/PM
   static int selectDay        = {0};
   static int selectHour[2]    = {0};
   static int selectMin [2]    = {0};
@@ -359,15 +355,7 @@ void DisplayEditSchedule() {
   sprintf(outputLine3, "End:   %s:%s %s", printHour[1], printMin[1], printAMPM[1]);
   sprintf(outputLine4, "Temp:  %s", printTemp);
   
-  OrbitOledClear();
-  OrbitOledSetCursor(0, 0);
-  OrbitOledPutString(outputLine1);
-  OrbitOledSetCursor(0, 1);
-  OrbitOledPutString(outputLine2);
-  OrbitOledSetCursor(0, 2);
-  OrbitOledPutString(outputLine3);
-  OrbitOledSetCursor(0, 3);
-  OrbitOledPutString(outputLine4);
+  PrintScreen(outputLine1, outputLine2, outputLine3, outputLine4);
 
   if (GetButtonEnter()) {
     currentSelect = (currentSelect+1)%8;
@@ -375,20 +363,48 @@ void DisplayEditSchedule() {
       if (TimeCompareFirst(selectHour[0] + 12*selectAMPM[0], selectMin[0], 
                            selectHour[1] + 12*selectAMPM[1], selectMin[1])) {
         sprintf(outputLine2, "Confirmed!");
-        CenterLine(outputLine2);
-        OrbitOledClear();
-        OrbitOledSetCursor(0, 1);
-        OrbitOledPutString(outputLine2);
+        strcpy(outputLine1, "");
+        strcpy(outputLine3, "");
+        strcpy(outputLine4, "");
+        PrintScreen(outputLine1, outputLine2, outputLine3, outputLine4);
         delay(2000);
-        
+
+        if (selectDay <= 6) {
+          for (int i=0; i<(selectHour[1] + 12*selectAMPM[1])*IntervalsInHour+selectMin[1] - 
+                          ((selectHour[0] + 12*selectAMPM[0])*IntervalsInHour+selectMin[0]); i++)
+            TenativeSchedule[selectDay*HoursInDay*IntervalsInHour 
+                          + (selectHour[0] + 12*selectAMPM[0])*IntervalsInHour+selectMin[0]] = selectTemp;
+        }
+        else if (selectDay == 7){
+          for (int j=0; j<5; j++)
+          for (int i=0; i<(selectHour[1] + 12*selectAMPM[1])*IntervalsInHour+selectMin[1] - 
+                          ((selectHour[0] + 12*selectAMPM[0])*IntervalsInHour+selectMin[0]); i++)
+            TenativeSchedule[j*HoursInDay*IntervalsInHour 
+                          + (selectHour[0] + 12*selectAMPM[0])*IntervalsInHour+selectMin[0]] = selectTemp;
+        }
+        else if (selectDay == 8){
+          for (int j=5; j<7; j++)
+          for (int i=0; i<(selectHour[1] + 12*selectAMPM[1])*IntervalsInHour+selectMin[1] - 
+                          ((selectHour[0] + 12*selectAMPM[0])*IntervalsInHour+selectMin[0]); i++)
+            TenativeSchedule[j*HoursInDay*IntervalsInHour 
+                          + (selectHour[0] + 12*selectAMPM[0])*IntervalsInHour+selectMin[0]] = selectTemp;
+        }
+        else if (selectDay == 9){
+          for (int j=0; j<7; j++)
+          for (int i=0; i<(selectHour[1] + 12*selectAMPM[1])*IntervalsInHour+selectMin[1] - 
+                          ((selectHour[0] + 12*selectAMPM[0])*IntervalsInHour+selectMin[0]); i++)
+            TenativeSchedule[j*HoursInDay*IntervalsInHour 
+                          + (selectHour[0] + 12*selectAMPM[0])*IntervalsInHour+selectMin[0]] = selectTemp;
+        }
         IsEditingSchedule = false;
       }
       else {
         sprintf(outputLine2, "Invalid Times!");
         CenterLine(outputLine2);
-        OrbitOledClear();
-        OrbitOledSetCursor(0, 1);
-        OrbitOledPutString(outputLine2);
+        strcpy(outputLine1, "");
+        strcpy(outputLine3, "");
+        strcpy(outputLine4, "");
+        PrintScreen(outputLine1, outputLine2, outputLine3, outputLine4);
         delay(2000);
         currentSelect = 1;
       }
@@ -414,6 +430,9 @@ void DisplayEditSchedule() {
 void SelectTemp() {
   char outputLine1[ScreenWidth+1] = "";
   char outputLine2[ScreenWidth+1] = "";
+  char outputLine3[ScreenWidth+1] = "";
+  char outputLine4[ScreenWidth+1] = "";
+
 
   if (CurrSetTemp == GetNoSetTemp())
     sprintf(outputLine1, "Temp not set!");
@@ -426,20 +445,16 @@ void SelectTemp() {
   CenterLine(outputLine1);
 
   if (GetPotentiometer() < 0.01) 
-    sprintf(outputLine2, "Desired: NONE");
+    sprintf(outputLine3, "Desired: NONE");
   else {
     if (Celcius)
-      sprintf(outputLine2, "Desired: %g C", DesiredTempFromPot());
+      sprintf(outputLine3, "Desired: %g C", DesiredTempFromPot());
     else
-      sprintf(outputLine2, "Desired: %g F", CtoF(DesiredTempFromPot()));
+      sprintf(outputLine3, "Desired: %g F", CtoF(DesiredTempFromPot()));
   }
-  CenterLine(outputLine2);
+  CenterLine(outputLine3);
   
-  OrbitOledClear();
-  OrbitOledSetCursor(0, 0);
-  OrbitOledPutString(outputLine1);
-  OrbitOledSetCursor(0, 2);
-  OrbitOledPutString(outputLine2);
+  PrintScreen(outputLine1, outputLine2, outputLine3, outputLine4);
 
   if (GetButtonEnter()){
     if (GetPotentiometer() < 0.01)
@@ -470,7 +485,9 @@ void DisplaySetTime() {
   static int selectAMPM    = 0;
 
   char outputLine1[ScreenWidth+1] = "";
+  char outputLine2[ScreenWidth+1] = "";
   char outputLine3[ScreenWidth+1] = "";
+  char outputLine4[ScreenWidth+1] = "";
 
   sprintf(outputLine1, "Select Time:");
   
@@ -519,11 +536,7 @@ void DisplaySetTime() {
   sprintf(outputLine3, "%s %s:%s %s", printDay, printHour, printMin, printAMPM);
   CenterLine(outputLine3);
   
-  OrbitOledClear();
-  OrbitOledSetCursor(0, 0);
-  OrbitOledPutString(outputLine1);
-  OrbitOledSetCursor(0, 2);
-  OrbitOledPutString(outputLine3);
+  PrintScreen(outputLine1, outputLine2, outputLine3, outputLine4);
   
   if (GetButtonEnter()) {
     currentSelect = (currentSelect+1)%4;

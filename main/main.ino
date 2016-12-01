@@ -26,11 +26,7 @@ void setup() {
 
 void loop() {
   delay(100);
-  Serial.println("1");
   ReadInput();
-  Serial.println("12");
   DisplayTick();
-  Serial.println("123");
   ControlTemp();
-  Serial.println("1234");
 }
