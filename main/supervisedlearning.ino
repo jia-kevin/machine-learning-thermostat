@@ -1,5 +1,5 @@
 /*
- * Data Collection and Algorithm based on Reinforcement Learning (type of Machine Learning)
+ * Data Collection and Algorithm based on Supervised Learning (type of Machine Learning)
  * 
  * Collects:
  *  # of times each interval was visited
@@ -10,13 +10,14 @@
  * Output:
  *  modified machine learned schedule
  *  based on factors above
- *  reinforcement learning uses reward method
+ *  supervised learning uses reward method
  *  we calculate the reward with the data
  *  the reward for an impactful new temp is big
  *  
  *  the reward will be a scalar between 0 and 1
  *  and be used to created a weighted average between 
- *  old data and new data
+ *  old data and new data (probabilistic approach with 
+ *  generally newer data being more important)
  */
 
 #include <math.h>
@@ -24,7 +25,7 @@
 #include "datetime.h"
 #define EPS 1e-9
 
-//2 check-bytes to see if reinforcementlearning has been initialized before
+//2 check-bytes to see if supervisedlearning has been initialized before
 const int ConfirmMLInitAddress1 = 30000;
 const int ConfirmMLByteValue1   = 123;
 const int ConfirmMLInitAddress2 = 30000;
@@ -41,7 +42,7 @@ const int MaxWeight        = 0.6; //Maximum reward
 int  prevMin     = 0;
 bool tempChanged = false;
 
-void RLInit() {
+void SLInit() {
   int check[1];
   EepromReadByte(check, ConfirmMLInitAddress1);
   if (check[0] == ConfirmMLByteValue1) return;

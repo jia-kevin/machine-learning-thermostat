@@ -21,7 +21,7 @@ void setup() {
   EepromInit();
   TempInit();
   ControlInit();
-  RLInit();
+  SLInit();
   UiInit();
   TimeInit();
 }
