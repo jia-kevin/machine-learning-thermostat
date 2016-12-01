@@ -1,2 +1,4 @@
-# machine-learning-thermostat
+# Machine Learning Thermostat
+
+
 
