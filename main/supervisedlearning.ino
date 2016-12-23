@@ -43,13 +43,12 @@ int  prevMin     = 0;
 bool tempChanged = false;
 
 void SLInit() {
-  int check[1];
-  EepromReadByte(check, ConfirmMLInitAddress1);
-  if (check[0] == ConfirmMLByteValue1) return;
+  int check1[1], check2[1];
+  EepromReadByte(check1, ConfirmMLInitAddress1);
+  EepromReadByte(check2, ConfirmMLInitAddress2);
+  if (check1[0] == ConfirmMLByteValue1 &&
+      check2[0] == ConfirmMLByteValue2) return;
   
-  EepromReadByte(check, ConfirmMLInitAddress2);
-  if (check[0] == ConfirmMLByteValue2) return;
-
   int send[1];
   send[0] = ConfirmMLByteValue1; 
   EepromWriteByte(send, ConfirmMLInitAddress1);
@@ -102,7 +101,7 @@ void PollMLData() {
     if (data1[0] < 0) 
       data1[0] += 256;
     EepromWriteByte(data1, ScheduleArraySize*3 + 2*indexToChange);
-    EepromWriteByte(data2, ScheduleArraySize*3 + 2*indexToChange);
+    EepromWriteByte(data2, ScheduleArraySize*3 + 2*indexToChange + 1);
   }
   //else perform algorithm and produce new ml schedule
   else {
@@ -133,7 +132,7 @@ void PollMLData() {
     data2[0] = ((newTemp - data1[0]) > 0.5) ? 128 : 0;if (data1[0] < 0) 
     data1[0] += 256;
     EepromWriteByte(data1, ScheduleArraySize*3 + 2*indexToChange);
-    EepromWriteByte(data2, ScheduleArraySize*3 + 2*indexToChange);
+    EepromWriteByte(data2, ScheduleArraySize*3 + 2*indexToChange + 1);
 
     int writeB[1];
     writeB[0] = prevIter + 1;
